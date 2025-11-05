@@ -1,6 +1,0 @@
-0000000000000000000000000000000000000000 b5510965038953b62f2a5d45a777bbb00fbdab0f owner <owner@example.com> 1762174343 +0900	commit (initial): 初期: 最小シーンとC#スクリプト追加、Mainシーン設定、csprojビルド設定修正、README/Document/tasks.md追加
-b5510965038953b62f2a5d45a777bbb00fbdab0f 5d4efed076e5f6f6b2b8aa40cac7b5d3225d34aa owner <owner@example.com> 1762174571 +0900	commit: chore: Remove build outputs from repo and update .gitignore
-5d4efed076e5f6f6b2b8aa40cac7b5d3225d34aa 7999dd0628243cbea65b13a36a2d664a446a670e owner <owner@example.com> 1762176814 +0900	commit: refactor: move game core to src/GameCore and update tests/project refs
-7999dd0628243cbea65b13a36a2d664a446a670e 36179702fda64f0a116e8b46db60927249872551 owner <owner@example.com> 1762177122 +0900	commit: fix: tests project reference to src/GameCore
-36179702fda64f0a116e8b46db60927249872551 cd5b69de2d0e67858c5bc187438cd5975592cb35 owner <owner@example.com> 1762177231 +0900	commit: chore: add .gitattributes to normalize line endings
-cd5b69de2d0e67858c5bc187438cd5975592cb35 3459fd9480836e52abce9828b3f1b081502db15b owner <owner@example.com> 1762177411 +0900	commit: docs: add line-ending policy to README
