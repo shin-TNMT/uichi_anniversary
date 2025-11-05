@@ -1,0 +1,29 @@
+# Auto detect text files and normalize them in the repository
+* text=auto
+
+# Windows-friendly files: keep CRLF on checkout for common Windows text files
+*.cs      text eol=crlf
+*.sln     text eol=crlf
+*.csproj  text eol=crlf
+*.user    text eol=crlf
+*.props   text eol=crlf
+*.targets text eol=crlf
+
+# Shell scripts, markdown and yaml prefer LF
+*.sh      text eol=lf
+*.md      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# Godot project/scene files: use LF
+project.godot    text eol=lf
+*.tscn           text eol=lf
+
+# Binary files: do not attempt normalization
+*.png   binary
+*.jpg   binary
+*.ogg   binary
+*.wav   binary
+*.import binary
+# Normalize EOL for all files that Git considers text files.
+* text=auto eol=lf

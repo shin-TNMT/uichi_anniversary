@@ -1,0 +1,11 @@
+{
+  "source": "res://assets/tiles/town/magecity.png",
+  "tile_size": 48,
+  "image_width": 256,
+  "image_height": 1450,
+  "cols": 5,
+  "rows": 30,
+  "tiles": [
+    
+  ]
+}

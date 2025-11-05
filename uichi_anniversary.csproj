@@ -1,0 +1,22 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>uichi_anniversary</AssemblyName>
+    <RootNamespace>uichi_anniversary</RootNamespace>
+    <!-- Disable SDK auto-generation of assembly attributes because Godot generates its own AssemblyInfo
+         which would otherwise cause duplicate attribute errors (CS0579). -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <!-- Prevent the SDK from implicitly including every .cs under the repository root.
+         This project lives at the repository root and default globbing would pull tests and
+         other projects into compilation causing duplicate attribute and missing-reference errors.
+         Instead explicitly include only the game's scripts. -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include only game script sources -->
+    <Compile Include="scripts\**\*.cs" />
+  </ItemGroup>
+
+</Project>

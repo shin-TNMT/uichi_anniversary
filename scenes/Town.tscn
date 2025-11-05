@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scenes/tiles/TownTiles.tres" type="TileSet" id=1]
+
+[node name="Town" type="Node2D"]
+position = Vector2( 0, 0 )
+
+[node name="Ground" type="TileMap" parent="Town"]
+cell_size = Vector2( 48, 48 )
+tile_set = ExtResource( 1 )
+
+# Additional layers (Roads/Decor/BuildingsBase/BuildingsTop) can be added as sibling TileMap nodes in the editor.

@@ -1,0 +1,19 @@
+# Godot 4+ specific ignores
+.godot/
+.android/
+
+# Build outputs and editor caches
+**/bin/
+**/obj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+
+# Godot Mono temp and generated files
+.godot/mono/
+.godot/mono/temp/
+
+# IDE folders
+.idea/

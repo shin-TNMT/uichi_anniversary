@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource path="res://scripts/NPC.cs" type="Script" id=1]
+
+[node name="NPC" type="Node2D"]
+position = Vector2( 200, 200 )
+
+[node name="Sprite" type="Sprite2D" parent="NPC"]
+texture = null
+
+[node name="Area" type="Area2D" parent="NPC"]
+
+[node name="Collision" type="CollisionShape2D" parent="NPC/Area"]
+shape = RectangleShape2D.new()
+shape.extents = Vector2(16,16)
+
+[instance placeholder=ExtResource(1) load_steps=1]
+
