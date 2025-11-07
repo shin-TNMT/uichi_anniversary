@@ -113,16 +113,10 @@
 
 
 
----
 
-## 2025-11-04 — 実施者: 自動化エージェント
-- 要約: スタート画面実装のための調査と整理を行い、`Document/reports.md` に追記を実施
 - 変更ファイル:
-  - `Document/reports.md` (追記: スタート画面実装の調査)
   - `Document/process.md` (この追記)
 - 実行した主要コマンド:
-  - 直接のシェルコマンドは実行していません（ドキュメント作成・調査作業）
-- 次のアクション:
   1. `project.godot` の main scene 設定の確認（Godot エディタで実施）
   2. `scenes/Main.tscn` と `scripts/Main.cs` をコード/エディタで確認
   3. 最小のスタート画面 (`scenes/StartScreen.tscn` と `scripts/StartScreen.cs`) を追加して動作確認

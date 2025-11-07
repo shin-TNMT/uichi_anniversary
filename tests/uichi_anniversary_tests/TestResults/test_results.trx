@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="9044083c-bc04-4823-aca1-df81be278c72" name="owner@DESKTOP-T1RNPCK 2025-11-05 23:34:24" runUser="DESKTOP-T1RNPCK\owner" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-11-05T23:34:24.1180820+09:00" queuing="2025-11-05T23:34:24.1180820+09:00" start="2025-11-05T23:34:23.6338174+09:00" finish="2025-11-05T23:34:24.1219604+09:00" />
+  <TestSettings name="default" id="45d8fcc6-5193-44d3-897a-0e2c64521fee">
+    <Deployment runDeploymentRoot="owner_DESKTOP-T1RNPCK_2025-11-05_23_34_24" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="ec0e4de0-72f8-4288-a166-4dc3e96c9d4e" testId="61ead9f0-f1d7-0029-710f-736f2ecd98d3" testName="TestMainScriptReady" computerName="DESKTOP-T1RNPCK" duration="00:00:00.0116580" startTime="2025-11-05T23:34:24.0301349+09:00" endTime="2025-11-05T23:34:24.0417572+09:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ec0e4de0-72f8-4288-a166-4dc3e96c9d4e">
+      <Output>
+        <StdOut>Test runner OK</StdOut>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="TestMainScriptReady" storage="c:\users\owner\documents\codes\uichi_anniversary\tests\uichi_anniversary_tests\bin\debug\net9.0\uichi_anniversary_tests.dll" id="61ead9f0-f1d7-0029-710f-736f2ecd98d3">
+      <Execution id="ec0e4de0-72f8-4288-a166-4dc3e96c9d4e" />
+      <TestMethod codeBase="C:\Users\owner\Documents\codes\uichi_anniversary\tests\uichi_anniversary_tests\bin\Debug\net9.0\uichi_anniversary_tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="uichi_anniversary_tests.UnitTest1" name="TestMainScriptReady" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="61ead9f0-f1d7-0029-710f-736f2ecd98d3" executionId="ec0e4de0-72f8-4288-a166-4dc3e96c9d4e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="一覧に存在しない結果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="読み込まれたすべての結果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="1" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.3.1.0: Test execution started&#xD;
+Running all tests in C:\Users\owner\Documents\codes\uichi_anniversary\tests\uichi_anniversary_tests\bin\Debug\net9.0\uichi_anniversary_tests.dll&#xD;
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+TestMainScriptReady: Test runner OK&#xD;
+NUnit Adapter 4.3.1.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
