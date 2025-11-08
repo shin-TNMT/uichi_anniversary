@@ -9,9 +9,11 @@ script = ExtResource("1")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("2")
-centered = false
+centered = true
+position = Vector2(0, -16)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
 shape = CircleShape2D {
   radius = 8.0
 }
