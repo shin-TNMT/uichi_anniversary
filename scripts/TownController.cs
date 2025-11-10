@@ -40,9 +40,30 @@ public partial class TownController : Node2D
             return;
         }
 
-        var player = PlayerScene.Instantiate<CharacterBody2D>();
-        AddChild(player);
-        player.Position = spawn.Position;
+        // If a Player node already exists in the scene (e.g. placed in editor), use it
+        // instead of instantiating a second copy. This prevents duplicate players at runtime.
+        CharacterBody2D player = null;
+        var existing = GetNodeOrNull<Node2D>("Player");
+        if (existing != null)
+        {
+            player = existing as CharacterBody2D;
+            if (player == null)
+            {
+                GD.Print("WARN: Existing 'Player' node found but is not a CharacterBody2D. Instantiating new player.");
+            }
+            else
+            {
+                GD.Print("Found existing Player node in scene; using it instead of spawning.");
+                player.Position = spawn.Position;
+            }
+        }
+
+        if (player == null)
+        {
+            player = PlayerScene.Instantiate<CharacterBody2D>();
+            AddChild(player);
+            player.Position = spawn.Position;
+        }
 
         // Auto-place 3 NPCs under NPCs node if NPC scene exists
         var npcsNode = GetNodeOrNull<Node2D>("NPCs");
