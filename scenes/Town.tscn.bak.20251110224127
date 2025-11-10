@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=4]
+[gd_scene load_steps=5 format=4 uid="uid://csjtfwmjjg6c4"]
 
-[ext_resource path="res://scenes/tiles/TownTiles.tres" type="TileSet" id=1]
-[ext_resource path="res://scripts/TownController.cs" type="Script" id=2]
+[ext_resource type="TileSet" uid="uid://vjyym68xrm8b" path="res://scenes/tiles/TownTiles.tres" id="1"]
+[ext_resource type="Script" uid="uid://b0syuxoeivnyh" path="res://scripts/TownController.cs" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="3_g5sqg"]
 [ext_resource type="PackedScene" path="res://scenes/props/NPC.tscn" id="4_gry36"]
 

@@ -1,4 +1,12 @@
-[gd_scene load_steps=2 format=3]
+scenes = {
+    r'C:\Users\owner\Documents\codes\uichi_anniversary\scenes\Main.tscn': '''[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/Main.cs" type="Script" id=1]
+
+[node name="Main" type="Node2D"]
+script = ExtResource(1)
+''',
+    r'C:\Users\owner\Documents\codes\uichi_anniversary\scenes\StartScreen.tscn': '''[gd_scene load_steps=2 format=3]
 
 [ext_resource path="res://scripts/StartScreen.cs" type="Script" id=1]
 
@@ -70,3 +78,10 @@ text = "100%"
 [node name="CloseButton" type="Button" parent="OptionsDialog/Margin/VBoxContainer"]
 layout_mode = 2
 text = "Close"
+'''
+}
+
+for path, content in scenes.items():
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print('wrote', path)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=4]
+content = '''[gd_scene load_steps=3 format=4]
 
 [ext_resource path="res://scripts/NPC.cs" type="Script" id=1]
 [ext_resource path="res://assets/characters/npc.png" type="Texture2D" id=2]
@@ -18,3 +18,7 @@ centered = true
 
 [node name="Collision" type="CollisionShape2D" parent="Area"]
 shape = SubResource(3)
+'''
+with open(r'C:\Users\owner\Documents\codes\uichi_anniversary\scenes\props\NPC.tscn','w',encoding='utf-8',newline='\n') as f:
+    f.write(content)
+print('wrote NPC.tscn')
