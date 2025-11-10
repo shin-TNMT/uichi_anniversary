@@ -5,6 +5,27 @@
 ---
 
 ## 2025-11-10 — 実施者: 自動化エージェント
+  - 要約: Godot エディタ用 TileMap 塗りつぶしスクリプト修正（`tools/fill_tilemap_editor_script.gd`）。
+  - 変更ファイル:
+    - `tools/fill_tilemap_editor_script.gd` (EditorScript: EditorInterface 呼び出しの修正、set_cell 系メソッドの呼び出し判定とフォールバックの改善、try/except の除去)
+  - 実行コマンド:
+    - なし（ファイル修正とコミット）
+  - 次のアクション:
+    - Godot エディタでスクリプトを実行して出力を確認してください（コンソール出力を貼っていただければ追加で調査して修正します）。
+    - 必要なら TileSet の atlas 幅 (texture width / texture_region_size.x) を使って整数 tile_id → Vector2i (atlas coords) 変換を組み込みます（やる場合は承認をお願いします）。
+
+## 2025-11-10 — 実施者: 自動化エージェント
+  - 要約: `scenes/Town.tscn` の誤削除/欠落によりプレイヤーが見えなくなっていた問題をバックアップから復元しました。
+  - 変更ファイル:
+    - `scenes/Town.tscn` (バックアップから復元し、`Player` インスタンスおよび Camera2D/NPC 等のノードを再配置)
+  - 実行コマンド:
+    - なし（ファイル編集・コミット）
+  - 次のアクション:
+    - Godot エディタで `scenes/Town.tscn` を開き、`Player` が表示されることを確認してください。
+    - 表示位置にズレがあれば報告ください。必要に応じて Player の位置を PlayerSpawn に合わせるスクリプト的修正を行います。
+
+
+## 2025-11-10 — 実施者: 自動化エージェント
   - 要約: NPC の待機挙動を実装 (プロシージャル bob とプレイヤー接近検出シグナル)
   - 変更ファイル:
     - `scripts/NPC.cs` (待機 bob, BodyEntered/BodyExited の強化、PlayerInteracted/PlayerLeft シグナル追加)

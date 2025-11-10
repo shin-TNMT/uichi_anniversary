@@ -7,7 +7,7 @@ extends EditorScript
 # 2. Open Script Editor -> 'Run' -> "Run Editor Script..." and choose this script.
 # 3. Configure the exported fields here in the file or edit the exports in the Inspector when the script is selected in the EditorScript panel.
 
-@export var tilemap_node_path: NodePath = NodePath("Town/Town#地形")
+@export var tilemap_node_path: NodePath = NodePath("")
 @export var tile_id: int = 0
 @export var start_pos: Vector2i = Vector2i.ZERO
 @export var end_pos: Vector2i = Vector2i(10, 10)
@@ -56,28 +56,43 @@ func _run():
 		for y in range(miny, maxy + 1):
 			_set_cell(tm, Vector2i(x, y), tile_id)
 
-	# Mark scene changed so user can save
-	var ed = get_editor_interface()
-	ed.edit_scene_changed()
-	print("Fill complete: node=%s tile_id=%d area=(%d,%d)-(%d,%d)" % [tilemap_node_path, tile_id, minx, miny, maxx, maxy])
+	# Note: some EditorInterface APIs vary by Godot version. Ask user to save the scene manually.
+	print("Fill complete (scene modified). Please save the scene in the editor. node=%s tile_id=%d area=(%d,%d)-(%d,%d)" % [tilemap_node_path, tile_id, minx, miny, maxx, maxy])
 
 func _set_cell(tm, cell: Vector2i, id: int) -> void:
-	# Use available methods depending on API availability to set a tile
+	# Prefer the explicit 'set_cell_item' API when present.
 	if tm.has_method("set_cell_item"):
-		# Godot 4 style
 		tm.call("set_cell_item", cell, id)
 		return
+
+	# If method list introspection is available, try to pick the right signature.
+	if tm.has_method("get_method_list"):
+		var mlist = tm.get_method_list()
+		for m in mlist:
+			if typeof(m) == TYPE_DICTIONARY and m.has("name") and str(m["name"]) == "set_cell":
+				var argc = 0
+				if m.has("arguments"):
+					argc = m["arguments"].size()
+				if argc == 2:
+					# Check if second argument expects a Vector2i (atlas coords)
+					var second = m["arguments"][1] if m["arguments"].size() > 1 else null
+					if typeof(second) == TYPE_DICTIONARY and second.has("type") and str(second["type"]).find("Vector2i") != -1:
+						tm.call("set_cell", cell, Vector2i(id, 0))
+						return
+					else:
+						tm.call("set_cell", cell, id)
+						return
+				elif argc == 3:
+					# (int x, int y, int id)
+					tm.call("set_cell", cell.x, cell.y, id)
+					return
+
+	# Fallback: try a few sensible calls if introspection isn't available.
+	if tm.has_method("set_cell"):
+		tm.call("set_cell", cell, id)
+		return
 	if tm.has_method("set_cellv"):
-		# some older names
 		tm.call("set_cellv", cell, id)
 		return
-	if tm.has_method("set_cell"):
-		# fallback signature: set_cell(x,y,id)
-		if id >= 0:
-			tm.call("set_cell", cell.x, cell.y, id)
-		else:
-			# clear
-			tm.call("set_cell", cell.x, cell.y, -1)
-		return
-	# If no supported method, print error
-	printerr("TileMap node does not expose a known set_cell method. Node type: %s" % tm.get_class())
+
+	printerr("Failed to set cell on node of type %s. No recognized set_cell method found." % tm.get_class())
