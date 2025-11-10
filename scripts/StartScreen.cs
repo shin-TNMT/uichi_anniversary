@@ -91,10 +91,10 @@ public partial class StartScreen : CanvasLayer
 
     private void OnStartPressed()
     {
-        GD.Print("Start pressed -> change scene to Main.tscn");
-        // Attempt to change to main scene. If Main.tscn doesn't exist or has errors,
-        // Godot will report it in the editor/runtime.
-        GetTree().ChangeSceneToFile("res://scenes/Main.tscn");
+        GD.Print("Start pressed -> change scene to Town.tscn");
+        // Open the Town scene when Start is pressed. If the scene has errors,
+        // Godot will report them in the editor/runtime.
+        GetTree().ChangeSceneToFile("res://scenes/Town.tscn");
     }
 
     private void OnOptionsPressed()
