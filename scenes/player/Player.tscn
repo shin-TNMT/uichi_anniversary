@@ -1,6 +1,4 @@
-
 [gd_scene load_steps=2 format=4 uid="uid://player0001"]
-
 [ext_resource type="Script" uid="uid://player_script" path="res://scripts/Player.cs" id="1"]
 [ext_resource type="Texture2D" uid="uid://mendako_tex" path="res://assets/characters/mendako.png" id="2"]
 
