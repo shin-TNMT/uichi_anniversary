@@ -6,8 +6,23 @@ public partial class Player : CharacterBody2D
     [Export]
     public int Speed { get; set; } = 160;
 
+    // Bobbing parameters (procedural animation for single-frame sprite)
+    [Export]
+    public float BobAmplitude { get; set; } = 4.0f;
+    [Export]
+    public float BobSpeed { get; set; } = 8.0f;
+
+    private Sprite2D sprite;
+    private Vector2 baseSpritePos = Vector2.Zero;
+    private double bobTimer = 0.0;
+
     public override void _Ready()
     {
+        sprite = GetNodeOrNull<Sprite2D>("Sprite");
+        if (sprite != null)
+        {
+            baseSpritePos = sprite.Position;
+        }
         GD.Print("Player ready at: ", GlobalPosition);
     }
 
@@ -26,5 +41,26 @@ public partial class Player : CharacterBody2D
 
         Velocity = input * Speed;
         MoveAndSlide();
+
+        // Procedural bobbing when moving
+        bool isMoving = input.Length() > 0.0f;
+        if (isMoving)
+        {
+            bobTimer += delta * BobSpeed;
+        }
+        else
+        {
+            // decay the bob timer slowly to avoid jump when restarting
+            bobTimer = bobTimer * 0.9;
+        }
+
+        if (sprite != null)
+        {
+            float offsetY = (float)(Math.Sin(bobTimer) * BobAmplitude * (isMoving ? 1.0 : 0.0));
+            sprite.Position = baseSpritePos + new Vector2(0, offsetY);
+            // Flip sprite horizontally based on input direction
+            if (input.X < 0) sprite.FlipH = true;
+            else if (input.X > 0) sprite.FlipH = false;
+        }
     }
 }
