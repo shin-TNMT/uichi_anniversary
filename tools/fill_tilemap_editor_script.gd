@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorScript
 
 # Editor tool to fill a rectangular area of a TileMap/TileMapLayer in the opened scene.
@@ -14,7 +14,7 @@ extends EditorScript
 @export var clear_first: bool = false
 
 func _run():
-	var root = get_editor_interface().get_edited_scene_root()
+	var root = EditorInterface.get_edited_scene_root()
 	if root == null:
 		printerr("No edited scene open. Open the scene you want to modify and run this script again.")
 		return
