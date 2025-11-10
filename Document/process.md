@@ -4,6 +4,18 @@
 
 ---
 
+## 2025-11-10 — 実施者: 自動化エージェント
+  - 要約: NPC の待機挙動を実装 (プロシージャル bob とプレイヤー接近検出シグナル)
+  - 変更ファイル:
+    - `scripts/NPC.cs` (待機 bob, BodyEntered/BodyExited の強化、PlayerInteracted/PlayerLeft シグナル追加)
+    - `scenes/props/NPC.tscn` (存在確認・Collision extents の確認を推奨)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln`
+  - 次のアクション:
+    - Godot エディタで `scenes/Town.tscn` を開き、NPC の近くに移動してログとシグナル発火を確認
+    - 会話 UI と接続したい場合は `TownController` 側で `PlayerInteracted` を受け取るハンドラを追加
+
+
 ## 2025-11-05 — 実施者: 自動化エージェント
   - `uichi_anniversary.sln` (追加)
   - `uichi_anniversary.csproj` (追加)
