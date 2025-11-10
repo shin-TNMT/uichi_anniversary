@@ -22,12 +22,19 @@ func _run():
 	var tm = null
 	if tilemap_node_path != NodePath(""):
 		tm = root.get_node_or_null(tilemap_node_path)
-	else:
-		# fallback: try find first TileMap / TileMapLayer in scene
-		for n in root.get_children():
-			if n is TileMap or n is TileMapLayer:
-				tm = n
+		if tm == null:
+			# Warn and fallback to recursive search if the explicit path wasn't found
+			printerr("TileMap path '%s' not found from scene root; falling back to recursive search." % tilemap_node_path)
+	if tm == null:
+		# recursive fallback: find first TileMap / TileMapLayer in scene
+		var stack = [root]
+		while stack.size() > 0:
+			var node = stack.pop_back()
+			if node is TileMap or node is TileMapLayer:
+				tm = node
 				break
+			for c in node.get_children():
+				stack.push_back(c)
 
 	if tm == null:
 		printerr("TileMap/TileMapLayer not found at path: %s" % tilemap_node_path)
