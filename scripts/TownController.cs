@@ -14,6 +14,16 @@ public partial class TownController : Node2D
     [Export]
     public int CameraMarginTiles { get; set; } = 1;
 
+    // Camera follow tuning
+    [Export]
+    public bool CameraSmoothingEnabled { get; set; } = true;
+
+    [Export]
+    public float CameraSmoothingSpeed { get; set; } = 6.0f;
+
+    [Export]
+    public Vector2 CameraZoom { get; set; } = new Vector2(1.0f, 1.0f);
+
     // Editor-only trigger to apply camera limits immediately (toggle in Inspector)
     [Export]
     public bool ApplyCameraLimitsNow { get; set; } = false;
@@ -81,12 +91,47 @@ public partial class TownController : Node2D
         }
 
         // Reparent Camera2D under player so it follows automatically
-        var camera = GetNodeOrNull<Camera2D>("Camera2D");
+        Camera2D camera = null;
+        // Try to find a Camera2D at root first, then search descendants
+        camera = GetNodeOrNull<Camera2D>("Camera2D");
+        if (camera == null)
+        {
+            // fallback: search children recursively
+            foreach (var n in GetChildren())
+            {
+                if (n is Camera2D c)
+                {
+                    camera = c;
+                    break;
+                }
+            }
+        }
+
         if (camera != null)
         {
-            RemoveChild(camera);
-            player.AddChild(camera);
-            camera.Position = Vector2.Zero;
+            // Only reparent if not already a child of the player
+            if (camera.GetParent() != player)
+            {
+                // keep current transform by converting to local coordinates
+                var world_pos = camera.GlobalPosition;
+                RemoveChild(camera);
+                player.AddChild(camera);
+                camera.Position = player.ToLocal(world_pos);
+            }
+
+            // Apply follow tuning
+            try
+            {
+                // Use generic Set to avoid binding differences across C# API versions
+                camera.Set("smoothing_enabled", CameraSmoothingEnabled);
+                camera.Set("smoothing_speed", CameraSmoothingSpeed);
+                camera.Set("zoom", CameraZoom);
+            }
+            catch (Exception)
+            {
+                // ignore if properties are not present or Set fails
+            }
+
             camera.MakeCurrent();
         }
         // After camera is parented to player, configure camera limits to the TileMap bounds
