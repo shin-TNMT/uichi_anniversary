@@ -19,3 +19,7 @@ position = Vector2(0, -16)
 position = Vector2(0, -8)
 shape = SubResource(3)
 
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+position = Vector2(0, 0)
+
