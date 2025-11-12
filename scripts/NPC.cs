@@ -21,6 +21,14 @@ public partial class NPC : Node2D
     [Export]
     public string InteractionText { get; set; } = "Hello!";
 
+    // Dialogue resource path (e.g. res://dialogues/merchant.json)
+    [Export]
+    public string DialoguePath { get; set; } = "";
+
+    // Unique NPC id used for seen/flag tracking
+    [Export]
+    public string NpcId { get; set; } = "npc_default";
+
     private Sprite2D sprite;
     private Vector2 basePos = Vector2.Zero;
     private double bobTimer = 0.0;
@@ -64,6 +72,24 @@ public partial class NPC : Node2D
                 FaceTowards(cb.GlobalPosition);
             // emit signal for UI or controller
             EmitSignal(nameof(PlayerInteractedEventHandler), body);
+            // Attempt to start dialogue via DialogManager singleton if available
+            try
+            {
+                var dm = GetTree().Root.GetNodeOrNull<Node>("DialogManager");
+                if (dm != null)
+                {
+                    // call StartDialogue on DialogManager if present
+                    var method = dm.GetType().GetMethod("StartDialogue");
+                    if (method != null)
+                    {
+                        method.Invoke(dm, new object[] { DialoguePath, NpcId });
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                GD.PrintErr("Dialog start failed: ", e.Message);
+            }
             // placeholder: log interaction text
             GD.Print($"NPC '{DisplayName}' says: {InteractionText}");
         }
