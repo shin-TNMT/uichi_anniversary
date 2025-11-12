@@ -1,9 +1,9 @@
 [gd_resource type="TileSet" load_steps=3 format=3 uid="uid://fosfgvftm50r"]
 
-[ext_resource type="Texture2D" uid="uid://clmkv1o0p3myo" path="res://assets/tiles/town/magecity.png" id="1_3xg8m"]
+[ext_resource type="Texture2D" uid="uid://clmkv1o0p3myo" path="res://assets/tiles/town/magecity.png" id="1"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j8a8g"]
-texture = ExtResource("1_3xg8m")
+texture = ExtResource(1)
 texture_region_size = Vector2i(32, 32)
 0:0/next_alternative_id = 2
 0:0/0 = 0

@@ -1,0 +1,15 @@
+{
+  "start": "greet_new",
+  "start_seen": "greet_seen",
+  "nodes": [
+    { "id": "greet_new", "type": "line", "speaker": "商人", "text": "いらっしゃいませ！ 初めてのお客さん？", "next": "ask_help" },
+    { "id": "ask_help", "type": "choice", "choices": [
+        { "text": "商品を見せてくれ", "next": "show_goods" },
+        { "text": "別に", "next": "goodbye" }
+      ]
+    },
+    { "id": "show_goods", "type": "line", "speaker": "商人", "text": "こちらが自慢の品です。", "next": "end", "once": true },
+    { "id": "goodbye", "type": "line", "speaker": "商人", "text": "また来てくださいね。", "next": "end" },
+    { "id": "greet_seen", "type": "line", "speaker": "商人", "text": "おや、また来たね。何か探しているのかい？", "next": "ask_help" }
+  ]
+}

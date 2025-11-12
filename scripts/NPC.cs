@@ -71,18 +71,43 @@ public partial class NPC : Node2D
             if (cb != null)
                 FaceTowards(cb.GlobalPosition);
             // emit signal for UI or controller
-            EmitSignal(nameof(PlayerInteractedEventHandler), body);
-            // Attempt to start dialogue via DialogManager singleton if available
+            EmitSignal("PlayerInteracted", body);
+            // Attempt to start dialogue via DialogManager instance if available
             try
             {
-                var dm = GetTree().Root.GetNodeOrNull<Node>("DialogManager");
+                Node dm = null;
+                // Prefer current scene's DialogManager
+                if (GetTree().CurrentScene != null)
+                {
+                    dm = GetTree().CurrentScene.GetNodeOrNull("DialogManager");
+                }
+                // Fallback: search upward in parents for a DialogManager node
+                if (dm == null)
+                {
+                    Node cursor = this;
+                    while (cursor != null)
+                    {
+                        dm = cursor.GetNodeOrNull("DialogManager");
+                        if (dm != null)
+                            break;
+                        cursor = cursor.GetParent() as Node;
+                    }
+                }
+
                 if (dm != null)
                 {
                     // call StartDialogue on DialogManager if present
                     var method = dm.GetType().GetMethod("StartDialogue");
                     if (method != null)
                     {
-                        method.Invoke(dm, new object[] { DialoguePath, NpcId });
+                        // If DialoguePath not set on instance, try a convention-based path using NpcId
+                        var pathToUse = DialoguePath;
+                        if (string.IsNullOrEmpty(pathToUse) && !string.IsNullOrEmpty(NpcId))
+                        {
+                            pathToUse = $"res://dialogues/{NpcId}.json";
+                        }
+                        GD.Print($"NPC '{DisplayName}': starting dialogue with resource '{pathToUse}' and id '{NpcId}'");
+                        method.Invoke(dm, new object[] { pathToUse, NpcId });
                     }
                 }
             }
@@ -100,7 +125,7 @@ public partial class NPC : Node2D
         if (body is CharacterBody2D)
         {
             GD.Print($"NPC '{DisplayName}': Player left: {body.Name}");
-            EmitSignal(nameof(PlayerLeftEventHandler), body);
+            EmitSignal("PlayerLeft", body);
         }
     }
 
