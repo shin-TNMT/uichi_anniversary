@@ -1,12 +1,11 @@
 [gd_scene load_steps=3 format=3 uid="00000000-0000-0000-0000-000000000000"]
-[node name="DialogWindow" type="WindowDialog"]
+[node name="DialogWindow" type="Panel"]
 anchor_right = 0.800000
 anchor_bottom = 0.400000
 margin_left = 200.0
 margin_top = 120.0
 margin_right = 600.0
 margin_bottom = 360.0
-popup_hide_on_ok = false
 [node name="Panel" type="Panel" parent="DialogWindow"]
 theme = null
 [node name="VBox" type="VBoxContainer" parent="Panel"]
