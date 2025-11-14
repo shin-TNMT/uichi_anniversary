@@ -1,22 +1,36 @@
-[gd_scene load_steps=3 format=3 uid="00000000-0000-0000-0000-000000000000"]
+[gd_scene format=3 uid="uid://cyx53x65jdiyy"]
+
 [node name="DialogWindow" type="Panel"]
-anchor_right = 0.800000
-anchor_bottom = 0.400000
-margin_left = 200.0
-margin_top = 120.0
-margin_right = 600.0
-margin_bottom = 360.0
-[node name="Panel" type="Panel" parent="DialogWindow"]
-theme = null
-[node name="VBox" type="VBoxContainer" parent="Panel"]
-[node name="Header" type="HBoxContainer" parent="Panel/VBox"]
-[node name="Speaker" type="Label" parent="Panel/VBox/Header"]
+anchors_preset = -1
+anchor_right = 0.8
+anchor_bottom = 0.4
+
+[node name="DialogWindow#Panel" type="Panel" parent="."]
+layout_mode = 0
+
+[node name="Panel#VBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+
+[node name="Panel_VBox#Header" type="HBoxContainer" parent="."]
+layout_mode = 0
+
+[node name="Panel_VBox_Header#Speaker" type="Label" parent="."]
+layout_mode = 0
 text = "Speaker"
-[node name="Body" type="RichTextLabel" parent="Panel/VBox"]
-bbcode_enabled = false
-rect_min_size = Vector2(400, 120)
-[node name="Choices" type="VBoxContainer" parent="Panel/VBox"]
+
+[node name="Panel_VBox#Body" type="RichTextLabel" parent="."]
+layout_mode = 0
+
+[node name="Panel_VBox#Choices" type="VBoxContainer" parent="."]
 visible = false
-[node name="Footer" type="HBoxContainer" parent="Panel/VBox"]
-[node name="NextButton" type="Button" parent="Panel/VBox/Footer"]
+layout_mode = 0
+
+[node name="Panel_VBox#Footer" type="HBoxContainer" parent="."]
+layout_mode = 0
+
+[node name="Panel_VBox_Footer#NextButton" type="Button" parent="."]
+layout_mode = 0
+offset_top = 27.0
+offset_right = 38.0
+offset_bottom = 58.0
 text = "次へ"

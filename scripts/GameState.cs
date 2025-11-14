@@ -44,7 +44,8 @@ public partial class GameState : Node
         inventory[itemId] += count;
         var newCount = inventory[itemId];
         GD.Print($"GameState: AddItem {itemId} -> {newCount}");
-        EmitSignal(nameof(ItemAddedEventHandler), itemId, newCount);
+        // Godot C# signal names are the delegate name without the trailing 'EventHandler'
+        EmitSignal(nameof(ItemAddedEventHandler).Replace("EventHandler", ""), itemId, newCount);
         CheckVictory();
     }
 
@@ -68,7 +69,7 @@ public partial class GameState : Node
         if (total >= winThreshold)
         {
             GD.Print("GameState: Victory achieved! total=", total);
-            EmitSignal(nameof(VictoryEventHandler));
+            EmitSignal(nameof(VictoryEventHandler).Replace("EventHandler", ""));
             // Simple visual: create a Popup at root
             ShowWinPopup();
         }

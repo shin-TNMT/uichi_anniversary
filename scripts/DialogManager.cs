@@ -23,7 +23,8 @@ public partial class DialogManager : Node
     private Godot.Collections.Dictionary currentNodeMap = null; // id -> node dict
     private string currentNodeId = null;
     // track which Button instance IDs we've connected to avoid duplicate connect attempts
-    private HashSet<long> connectedButtonIds = new HashSet<long>();
+    // Use ulong to match Godot's GetInstanceId() return type on recent C# bindings
+    private HashSet<ulong> connectedButtonIds = new HashSet<ulong>();
 
     public override void _Ready()
     {
@@ -525,13 +526,24 @@ public partial class DialogManager : Node
             if (next != null)
             {
                 GD.Print("ShowCurrentNode: NextButton found by suffix: ", next.Name);
+                try
+                {
+                    // Avoid duplicate connections by tracking instance IDs (ulong)
                     try
                     {
-                        // Avoid engine-level duplicate connections by checking via Callable
-                        var callable = new Callable(this, nameof(OnNextPressed));
-                        if (!next.IsConnected("pressed", callable))
+                        var id = next.GetInstanceId();
+                        if (!connectedButtonIds.Contains(id))
+                        {
                             next.Pressed += OnNextPressed;
+                            connectedButtonIds.Add(id);
+                        }
                     }
+                    catch
+                    {
+                        // Fallback: attempt to connect once
+                        try { next.Pressed += OnNextPressed; } catch { }
+                    }
+                }
                 catch (Exception e)
                 {
                     GD.PrintErr("Failed to connect NextButton safely: ", e.Message);
