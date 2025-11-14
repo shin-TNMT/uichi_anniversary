@@ -87,7 +87,9 @@ public partial class DialogManager : Node
             return;
         try
         {
-            root.PauseMode = PauseMode.Process;
+            // Use property setter by name to avoid compile-time binding issues across Godot C# versions
+            // 'pause_mode' corresponds to the GDScript property; 2 == Process
+            root.Set("pause_mode", 2);
         }
         catch { }
         var children = root.GetChildren();
