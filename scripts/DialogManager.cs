@@ -212,7 +212,20 @@ public partial class DialogManager : Node
                     if (instW is Control c)
                     {
                         hostControl = c;
-                        GetTree().Root.AddChild(hostControl);
+                        // Wrap the control in a CanvasLayer to ensure it is rendered and receives input above other UI
+                        try
+                        {
+                            var layer = new CanvasLayer();
+                            layer.Name = "DialogCanvasLayer";
+                            try { layer.Set("layer", 1000); } catch { }
+                            layer.AddChild(hostControl);
+                            GetTree().Root.AddChild(layer);
+                        }
+                        catch
+                        {
+                            // fallback: add control directly
+                            GetTree().Root.AddChild(hostControl);
+                        }
                     }
                     else
                     {
@@ -232,12 +245,34 @@ public partial class DialogManager : Node
                             wrapper.Name = "DialogWindow_Wrapper";
                             wrapper.AddChild((Node)instW);
                             hostControl = wrapper;
-                            GetTree().Root.AddChild(wrapper);
+                            try
+                            {
+                                var layer = new CanvasLayer();
+                                layer.Name = "DialogCanvasLayer";
+                                try { layer.Set("layer", 1000); } catch { }
+                                layer.AddChild(hostControl);
+                                GetTree().Root.AddChild(layer);
+                            }
+                            catch
+                            {
+                                GetTree().Root.AddChild(wrapper);
+                            }
                         }
                         else
                         {
                             // add the original instance to the root so child control is in the tree
-                            GetTree().Root.AddChild(instW);
+                            try
+                            {
+                                var layer = new CanvasLayer();
+                                layer.Name = "DialogCanvasLayer";
+                                try { layer.Set("layer", 1000); } catch { }
+                                layer.AddChild(instW);
+                                GetTree().Root.AddChild(layer);
+                            }
+                            catch
+                            {
+                                GetTree().Root.AddChild(instW);
+                            }
                         }
                     }
 
