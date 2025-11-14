@@ -178,25 +178,55 @@ public partial class DialogManager : Node
             {
                 try
                 {
-                    dialogBoxInstance = (Control)dialogWindowScene.Instantiate();
-                    // Add to root so it's visually on top and independent of scene tree ordering
-                    GetTree().Root.AddChild(dialogBoxInstance);
-                    dialogBoxInstance.Name = "DialogWindow";
-                    // Pause the tree so gameplay input stops while dialog is open
-                    GetTree().Paused = true;
-                    pausedByDialog = true;
-                    // If WindowDialog, popup centered
-                    // Try to popup centered if the node supports it. Use dynamic call to avoid
-                    // direct WindowDialog type dependency which may cause compile issues in some setups.
-                    try
+                    var instW = dialogWindowScene.Instantiate();
+                    Control hostControl = null;
+                    // Prefer the instance itself if it's a Control (WindowDialog etc.)
+                    if (instW is Control c)
                     {
-                        dialogBoxInstance.Call("popup_centered");
+                        hostControl = c;
+                        GetTree().Root.AddChild(hostControl);
                     }
-                    catch { }
-                    // connect Next button if present
-                    var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
-                    if (next != null)
-                        next.Pressed += OnNextPressed;
+                    else
+                    {
+                        // Try to find a Control child inside the instantiated scene
+                        foreach (Node child in instW.GetChildren())
+                        {
+                            if (child is Control cc)
+                            {
+                                hostControl = cc;
+                                break;
+                            }
+                        }
+                        // If still not found, wrap the instance into a Panel so we have a Control root
+                        if (hostControl == null)
+                        {
+                            var wrapper = new Panel();
+                            wrapper.Name = "DialogWindow_Wrapper";
+                            wrapper.AddChild((Node)instW);
+                            hostControl = wrapper;
+                            GetTree().Root.AddChild(wrapper);
+                        }
+                        else
+                        {
+                            // add the original instance to the root so child control is in the tree
+                            GetTree().Root.AddChild(instW);
+                        }
+                    }
+
+                    if (hostControl != null)
+                    {
+                        dialogBoxInstance = hostControl;
+                        dialogBoxInstance.Name = "DialogWindow";
+                        // Pause the tree so gameplay input stops while dialog is open
+                        GetTree().Paused = true;
+                        pausedByDialog = true;
+                        // If WindowDialog, popup centered (use dynamic call to avoid type dependency)
+                        try { dialogBoxInstance.Call("popup_centered"); } catch { }
+                        // connect Next button if present
+                        var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
+                        if (next != null)
+                            next.Pressed += OnNextPressed;
+                    }
                 }
                 catch (Exception e)
                 {
