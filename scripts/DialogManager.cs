@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using Godot.Collections;
 
 public partial class DialogManager : Node
@@ -21,6 +22,8 @@ public partial class DialogManager : Node
     private string currentNpcId = null;
     private Godot.Collections.Dictionary currentNodeMap = null; // id -> node dict
     private string currentNodeId = null;
+    // track which Button instance IDs we've connected to avoid duplicate connect attempts
+    private HashSet<long> connectedButtonIds = new HashSet<long>();
 
     public override void _Ready()
     {
@@ -310,11 +313,17 @@ public partial class DialogManager : Node
                             // attach pressed handler if not already connected
                             try
                             {
-                                var callable = new Callable(this, nameof(OnNextPressed));
-                                if (!next.IsConnected("pressed", callable))
+                                var id = next.GetInstanceId();
+                                if (!connectedButtonIds.Contains(id))
+                                {
                                     next.Pressed += OnNextPressed;
+                                    connectedButtonIds.Add(id);
+                                }
                             }
-                            catch { next.Pressed += OnNextPressed; }
+                            catch
+                            {
+                                try { next.Pressed += OnNextPressed; } catch { }
+                            }
                             // Diagnostic: log GUI input events on the Next button to see if clicks reach it
                             try
                             {
@@ -350,7 +359,16 @@ public partial class DialogManager : Node
                                 if (next != null)
                                 {
                                     EnsureButtonInteractive(next);
-                                    next.Pressed += OnNextPressed;
+                                    try
+                                    {
+                                        var id = next.GetInstanceId();
+                                        if (!connectedButtonIds.Contains(id))
+                                        {
+                                            next.Pressed += OnNextPressed;
+                                            connectedButtonIds.Add(id);
+                                        }
+                                    }
+                                    catch { try { next.Pressed += OnNextPressed; } catch { } }
                                 }
                     }
                     catch (Exception e)
@@ -704,6 +722,17 @@ public partial class DialogManager : Node
         {
             try
             {
+                // unregister connected buttons under this dialog to avoid leftover ids
+                try
+                {
+                    var btns = dialogBoxInstance.GetChildren();
+                    foreach (Node c in btns)
+                    {
+                        // walk children recursively and remove button ids
+                        UnregisterButtonsRecursively(c);
+                    }
+                }
+                catch { }
                 dialogBoxInstance.QueueFree();
             }
             catch { }
@@ -719,6 +748,18 @@ public partial class DialogManager : Node
         currentNodeId = null;
         currentNpcId = null;
         nodes = null;
+    }
+
+    private void UnregisterButtonsRecursively(Node root)
+    {
+        if (root == null) return;
+        if (root is Button b)
+        {
+            try { connectedButtonIds.Remove(b.GetInstanceId()); } catch { }
+        }
+        var children = root.GetChildren();
+        foreach (Node c in children)
+            UnregisterButtonsRecursively(c);
     }
 
     public bool IsActive()
