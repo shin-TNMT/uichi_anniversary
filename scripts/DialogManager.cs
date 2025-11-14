@@ -254,8 +254,16 @@ public partial class DialogManager : Node
                             SetPauseModeRecursively(dialogBoxInstance);
                         }
                         catch { }
-                        // Try to bring dialog to front so it receives mouse events
-                        try { if (dialogBoxInstance is Control dc) dc.Raise(); } catch { }
+                        // Try to bring dialog to front so it receives mouse events.
+                        // Use dynamic call to 'raise' if available, otherwise set a high z_index.
+                        try
+                        {
+                            if (dialogBoxInstance.HasMethod("raise"))
+                                dialogBoxInstance.Call("raise");
+                            else
+                                dialogBoxInstance.Set("z_index", 1000);
+                        }
+                        catch { }
                         // If WindowDialog, popup centered (call only if method exists)
                         try { if (dialogBoxInstance.HasMethod("popup_centered")) dialogBoxInstance.Call("popup_centered"); } catch { }
                         // connect Next button if present
