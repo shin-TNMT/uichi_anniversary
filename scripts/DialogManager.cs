@@ -99,6 +99,15 @@ public partial class DialogManager : Node
         }
     }
 
+    // Ensure a Button is enabled to receive mouse/focus input even when tree paused
+    private void EnsureButtonInteractive(Button btn)
+    {
+        if (btn == null) return;
+        try { btn.Disabled = false; } catch { }
+        try { btn.Set("mouse_filter", 0); } catch { }
+        try { btn.GrabFocus(); } catch { }
+    }
+
     public bool StartDialogue(string resourcePath, string npcId)
     {
         if (IsActive())
@@ -245,12 +254,18 @@ public partial class DialogManager : Node
                             SetPauseModeRecursively(dialogBoxInstance);
                         }
                         catch { }
+                        // Try to bring dialog to front so it receives mouse events
+                        try { if (dialogBoxInstance is Control dc) dc.Raise(); } catch { }
                         // If WindowDialog, popup centered (call only if method exists)
                         try { if (dialogBoxInstance.HasMethod("popup_centered")) dialogBoxInstance.Call("popup_centered"); } catch { }
                         // connect Next button if present
                         var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
                         if (next != null)
+                        {
+                            // ensure interactive
+                            EnsureButtonInteractive(next);
                             next.Pressed += OnNextPressed;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -264,7 +279,7 @@ public partial class DialogManager : Node
             // If still null, fall back to previous behavior (embedded DialogBox or programmatic)
             if (dialogBoxInstance == null)
             {
-                if (dialogBoxScene != null)
+                        if (dialogBoxScene != null)
                 {
                     try
                     {
@@ -272,9 +287,12 @@ public partial class DialogManager : Node
                         AddChild(dialogBoxInstance);
                         dialogBoxInstance.Name = "DialogBox";
                         // connect Next button
-                        var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
-                        if (next != null)
-                            next.Pressed += OnNextPressed;
+                                var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
+                                if (next != null)
+                                {
+                                    EnsureButtonInteractive(next);
+                                    next.Pressed += OnNextPressed;
+                                }
                     }
                     catch (Exception e)
                     {
@@ -310,6 +328,7 @@ public partial class DialogManager : Node
                         nextbtn.Name = "NextButton";
                         nextbtn.Text = "次へ";
                         footer.AddChild(nextbtn);
+                        EnsureButtonInteractive(nextbtn);
                         nextbtn.Pressed += OnNextPressed;
                         AddChild(dialogBoxInstance);
                     }
@@ -482,6 +501,7 @@ public partial class DialogManager : Node
                 GD.Print("ShowCurrentNode: setting Next visible. Before=", next.Visible, " Name=", next.Name);
                 next.Visible = true;
                 next.Show();
+                    try { EnsureButtonInteractive(next); } catch { }
                 GD.Print("ShowCurrentNode: Next after set visible=", next.Visible);
             }
 
