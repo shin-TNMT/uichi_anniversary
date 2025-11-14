@@ -429,12 +429,13 @@ public partial class DialogManager : Node
             if (next != null)
             {
                 GD.Print("ShowCurrentNode: NextButton found by suffix: ", next.Name);
-                try
-                {
-                    // Avoid engine-level disconnect warnings by only adding the handler if not already connected
-                    if (!next.IsConnected("pressed", this, nameof(OnNextPressed)))
-                        next.Pressed += OnNextPressed;
-                }
+                    try
+                    {
+                        // Avoid engine-level duplicate connections by checking via Callable
+                        var callable = new Callable(this, nameof(OnNextPressed));
+                        if (!next.IsConnected("pressed", callable))
+                            next.Pressed += OnNextPressed;
+                    }
                 catch (Exception e)
                 {
                     GD.PrintErr("Failed to connect NextButton safely: ", e.Message);
