@@ -280,9 +280,9 @@ public partial class DialogManager : Node
                     {
                         dialogBoxInstance = hostControl;
                         dialogBoxInstance.Name = "DialogWindow";
-                        // Pause the tree so gameplay input stops while dialog is open
-                        GetTree().Paused = true;
-                        pausedByDialog = true;
+                        // Previously we paused the SceneTree here which prevented UI clicks reaching the dialog on some setups.
+                        // Avoid pausing the entire tree; keep gameplay input handling responsibility to other systems.
+                        pausedByDialog = false;
                         // Ensure the dialog UI still receives input while the tree is paused
                         try
                         {
