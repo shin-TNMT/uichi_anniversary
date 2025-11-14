@@ -80,6 +80,23 @@ public partial class DialogManager : Node
         }
     }
 
+    // Ensure a node and its children keep processing while the SceneTree is paused
+    private void SetPauseModeRecursively(Node root)
+    {
+        if (root == null)
+            return;
+        try
+        {
+            root.PauseMode = PauseMode.Process;
+        }
+        catch { }
+        var children = root.GetChildren();
+        foreach (Node c in children)
+        {
+            SetPauseModeRecursively(c);
+        }
+    }
+
     public bool StartDialogue(string resourcePath, string npcId)
     {
         if (IsActive())
@@ -220,6 +237,12 @@ public partial class DialogManager : Node
                         // Pause the tree so gameplay input stops while dialog is open
                         GetTree().Paused = true;
                         pausedByDialog = true;
+                        // Ensure the dialog UI still receives input while the tree is paused
+                        try
+                        {
+                            SetPauseModeRecursively(dialogBoxInstance);
+                        }
+                        catch { }
                         // If WindowDialog, popup centered (use dynamic call to avoid type dependency)
                         try { dialogBoxInstance.Call("popup_centered"); } catch { }
                         // connect Next button if present
