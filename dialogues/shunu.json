@@ -1,0 +1,9 @@
+{
+  "start": "greet_new",
+  "nodes": [
+    { "id": "greet_new", "type": "line", "speaker": "しゅぬ", "text": "ふふ、面白いものを見つけたよ。興味ある？", "next": "ask_give" },
+    { "id": "ask_give", "type": "choice", "choices": [ { "text": "見せて", "next": "give_item" }, { "text": "遠慮する", "next": "end" } ] },
+    { "id": "give_item", "type": "line", "text": "謎の素材を渡した。", "once": true, "actions": [ { "give_item": "material_shunu" } ], "next": "end" },
+    { "id": "end", "type": "end" }
+  ]
+}

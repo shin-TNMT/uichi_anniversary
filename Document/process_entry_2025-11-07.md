@@ -32,7 +32,7 @@
 
 - 結果:
   - C# ビルド: 成功
-  - `.import` ファイル: `icon.svg.import`, `assets/tiles/town/magecity.png.import` を確認（破損の明示的兆候は無し）
+  - `.import` ファイル: `icon.svg.import`, `assets/tiles/town/[Base]BaseChip_pipo.png.import` を確認（破損の明示的兆候は無し）
   - Godot 起動ログ: エディタは正常に起動し、StartScreen の接続ログ等が出力されました（重大な例外はコンソールに見えませんでした）。
 
 - 次のアクション:

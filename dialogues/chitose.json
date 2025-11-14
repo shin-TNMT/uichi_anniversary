@@ -1,0 +1,8 @@
+{
+  "start": "greet_new",
+  "nodes": [
+    { "id": "greet_new", "type": "line", "speaker": "ちとせ", "text": "大事な話があるの。これ役に立つかも。", "next": "give_item" },
+    { "id": "give_item", "type": "line", "text": "重要な素材を渡した。", "once": true, "actions": [ { "give_item": "material_chitose" } ], "next": "end" },
+    { "id": "end", "type": "end" }
+  ]
+}

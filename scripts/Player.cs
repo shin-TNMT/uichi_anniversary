@@ -12,6 +12,11 @@ public partial class Player : CharacterBody2D
     [Export]
     public float BobSpeed { get; set; } = 8.0f;
 
+    // Whether the sprite image faces right by default (unflipped).
+    // Set to false if your source sprite faces left, to invert flip logic.
+    [Export]
+    public bool SpriteFacesRight { get; set; } = true;
+
     private Sprite2D sprite;
     private Vector2 baseSpritePos = Vector2.Zero;
     private double bobTimer = 0.0;
@@ -58,9 +63,20 @@ public partial class Player : CharacterBody2D
         {
             float offsetY = (float)(Math.Sin(bobTimer) * BobAmplitude * (isMoving ? 1.0 : 0.0));
             sprite.Position = baseSpritePos + new Vector2(0, offsetY);
-            // Flip sprite horizontally based on input direction
-            if (input.X < 0) sprite.FlipH = true;
-            else if (input.X > 0) sprite.FlipH = false;
+            // Flip sprite horizontally based on input direction.
+            // Respect `SpriteFacesRight` so the art's base facing can be configured.
+            if (input.X < 0)
+            {
+                // moving left -> face left
+                bool faceRight = false;
+                sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+            }
+            else if (input.X > 0)
+            {
+                // moving right -> face right
+                bool faceRight = true;
+                sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+            }
         }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "start": "greet_new",
+  "nodes": [
+    { "id": "greet_new", "type": "line", "speaker": "グルタミン酸", "text": "ちょっとした実験に使う材料だ。これでいいか？", "next": "give_item" },
+    { "id": "give_item", "type": "line", "text": "調合素材を渡した。", "once": true, "actions": [ { "give_item": "material_glutamic" } ], "next": "end" },
+    { "id": "end", "type": "end" }
+  ]
+}

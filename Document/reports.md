@@ -173,7 +173,7 @@ dotnet --version
    - ナビメッシュ（または A*）で NPC が正しく経路探索できるか確認。
 
 詳細ステップ（Godot エディタでの作業順）
-1. アセットを `assets/tiles/town/` に置く（例: `magecity.png`）。
+1. アセットを `assets/tiles/town/` に置く（例: `[Base]BaseChip_pipo.png`）。
 2. Godot で `TileSet` を新規作成し、テクスチャを登録する。
 3. 各タイルに Collision を追加。Autotile 用のビットマスクとルールを作成。
 4. `scenes/Town.tscn` を作成し、複数の `TileMap` ノードを用意。

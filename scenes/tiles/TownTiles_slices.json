@@ -1,11 +1,11 @@
 {
-  "source": "res://assets/tiles/town/magecity.png",
-  "tile_size": 48,
+  "source": "res://assets/tiles/town/[Base]BaseChip_pipo.png",
+  "tile_size": 32,
   "image_width": 256,
   "image_height": 1450,
   "cols": 5,
   "rows": 30,
   "tiles": [
-    
+	
   ]
 }

@@ -1,7 +1,7 @@
 Place your tile sprite sheet(s) here.
 
 Recommended:
-- Use a single sprite sheet named `magecity.png` (or update the path in `scenes/tiles/TownTiles.tres`).
+- Use a single sprite sheet named `[Base]BaseChip_pipo.png` (or update the path in `scenes/tiles/TownTiles.tres`).
 - Tile size used in this project: 32x32 (adjust TileMap cell_size if you choose a different size).
 - Each tile should be aligned on the grid (no extra padding) to simplify TileSet creation.
 

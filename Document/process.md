@@ -4,6 +4,33 @@
 
 ---
 
+## 2025-11-14 — 実施者: 自動化エージェント
+  - 要約: タイルアセット参照を `magecity.png` から `[Base]BaseChip_pipo.png` に差し替えました。`scenes/tiles/TownTiles.tres` と `scenes/tiles/TownTiles_slices.json` を更新し、関連ドキュメントを修正しました。
+  - 変更ファイル:
+    - `scenes/tiles/TownTiles.tres` (ext_resource の参照パスを差し替え)
+    - `scenes/tiles/TownTiles_slices.json` (source パスを差し替え、`tile_size` を 32 に修正)
+    - `assets/tiles/town/README.txt` (参照例を更新)
+    - `Document/reports.md` (参照例を更新)
+    - `Document/process_entry_2025-11-07.md` (`.import` 表記を更新)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    1. `assets/tiles/town/[Base]BaseChip_pipo.png` をワークスペースに配置してください（Godot が自動で `.import` を生成します）。
+    2. Godot エディタで `scenes/tiles/TownTiles.tres` を開き、TileSet のプレビューと AutoTile 設定を確認してください。
+    3. 必要なら `image_width` / `image_height` を実際の画像サイズに合わせて `scenes/tiles/TownTiles_slices.json` を編集してください。
+
+
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: 会話をモーダルとして展開する仕様を `Document/story_settings.md` に追加しました（UI/UX ガイドライン内）。実装メモ、サンプルコード、テストチェックリストを追記。
+  - 変更ファイル:
+    - `Document/story_settings.md` (UI / UX ガイドラインに「会話モーダル表示」仕様を追加)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    1. `res://scenes/ui/DialogWindow.tscn` のテンプレを作成して `DialogManager` での Instantiate を試してください。
+    2. Godot エディタで会話モーダルの表示、Pause 動作を確認してください。
+
+
 ## 2025-11-12 — 実施者: 自動化エージェント
   - 要約: Godot シーン/リソースの ext_resource 参照形式を正規化し、C# ビルド確認を実施
   - 変更ファイル:
@@ -18,6 +45,26 @@
     - Town シーンを実行し、NPC に近づいてシグナル発火（ダイアログ PoC の起動）とコンソール出力を確認してください。
     - もし他の .tscn/.tres で同様の parse エラーが出る場合は、該当ファイルのコンソール出力（エラー全文）を貼ってください。自動で追加修正を実行します。
 
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: `Document/story_settings.md` の NPC エントリから "役割" 行を削除（ユーザ依頼）
+  - 変更ファイル:
+    - `Document/story_settings.md` (「役割: ...」の行を全件削除)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    - 内容を確認の上、必要であれば per-NPC 会話 JSON の生成や追加修正を実施します。
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: ローカライズ方針を確定し、「日本語のみ対応（ローカライズ不要）」を `Document/story_settings.md` に反映しました。
+  - 変更ファイル:
+    - `Document/story_settings.md` (ローカライズ節を日本語-only に更新、エラーモード文言の修正、UI テキスト方針の明記)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    1. `scenes/` と `dialogues/` 内で多言語（i18n）参照が残っていないかをスキャンして確認してください。
+    2. Godot エディタで主要シーンを起動し、会話テキストが日本語で適切に表示されることを確認してください。
+    3. 将来多言語対応が必要になった場合は、別タスクでキー化や翻訳ファイル管理フローを設計してください。
+
+``` 
 ## 2025-11-10 — 実施者: 自動化エージェント
   - 要約: Godot エディタ用 TileMap 塗りつぶしスクリプト修正（`tools/fill_tilemap_editor_script.gd`）。
   - 変更ファイル:
@@ -122,7 +169,6 @@
   3. ゲームロジックのユニットテストを拡充する。
 ---
 
----
 
 - 要約: tests プロジェクトの ProjectReference 相対パス誤りを修正し、ビルド警告 (MSB9008) の解消を試みた
 - 変更ファイル:
@@ -181,6 +227,63 @@
   2. エディタからプロジェクトを実行し、Options ダイアログでスライダー操作が Master バスの音量に反映されることを確認
   3. 動作OKなら変更をコミット（コミットメッセージ例: "feat: add StartScreen + options (volume) and set as main scene")
 
----
+
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: アイテム取得のための GameState を追加し、DialogManager を拡張して会話 JSON の actions (give_item) を処理するようにした。また、複数 NPC の簡易会話ファイルを `dialogues/` に追加した。
+  - 変更ファイル:
+    - `scripts/GameState.cs` (追加: インベントリ管理、ItemAdded/Victory シグナル、勝利時の簡易ポップアップ)
+    - `scripts/DialogManager.cs` (編集: dialogue JSON の `actions` をパース、`give_item` を GameState に反映)
+    - `dialogues/dachi_1.json`, `dialogues/dachi_2.json`, `dialogues/dachi_3.json`, `dialogues/kua.json`, `dialogues/oshikatsu_purin.json`, `dialogues/futami.json`, `dialogues/feniki.json`, `dialogues/kiraccho.json`, `dialogues/toramoto_taiga.json`,
+      `dialogues/uichi.json`, `dialogues/feikaraiya.json`, `dialogues/konpeito.json`, `dialogues/menchop.json`, `dialogues/white_stew.json`, `dialogues/nemu.json`, `dialogues/morino_kuma.json`, `dialogues/namizou.json`,
+      `dialogues/glutamic_acid.json`, `dialogues/shunu.json`, `dialogues/zaurus.json`, `dialogues/ringo_yaya.json`, `dialogues/taro_chan.json`, `dialogues/mahirun.json`, `dialogues/chitose.json` (追加: サンプル会話ファイル)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+    - `dotnet build uichi_anniversary.sln` を推奨（C# のビルド確認）
+  - 次のアクション:
+    - Godot エディタでゲームを起動し、Town シーンで NPC と会話してアイテム取得と勝利判定が正しく動作するか確認してください。
+    - 問題があれば私がログを解析して追加修正を行います。
+  
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: 不要になったテスト用ダイアログファイル（dachi_1/2/3）を削除しました（ユーザ要望）。
+  - 変更ファイル:
+    - `dialogues/dachi_1.json` (削除)
+    - `dialogues/dachi_2.json` (削除)
+    - `dialogues/dachi_3.json` (削除)
+  - 実行コマンド:
+    - ファイル削除を apply_patch で実施
+  - 次のアクション:
+    - Godot エディタで Town シーンを起動し、該当 NPC が削除された会話ファイルを参照していないか確認してください（NPC インスタンスに dachi_* が残る場合は要対応）。
+
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: `Document/story_settings.md` の NPC エントリに欠落していた情報を補完しました（`npc_mahirun` に `取得可能アイテム` を追加、`npc_chitose` のフォーマット整備および関連エントリの追記）。
+  - 変更ファイル:
+    - `Document/story_settings.md` (NPC 一覧の欠落情報を補完、項目順を整理)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    - Godot エディタまたはチームで `Document/story_settings.md` の内容を確認してください。
+    - NPC エントリの変更に伴い、シーンの NPC インスタンスが参照している会話ファイルパスが正しいか確認してください。
+
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: `Document/story_settings.md` の世界観セクションから `Field` 行を削除しました（ユーザ指示: "Field は無しとします"）。
+  - 変更ファイル:
+    - `Document/story_settings.md` (世界観セクションの『Field』行を削除)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+  - 次のアクション:
+    - ドキュメントを確認し、他に削除/修正希望のセクションがあれば指示してください。
+
+## 2025-11-13 — 実施者: 自動化エージェント
+  - 要約: ゲームクリア条件のデフォルト閾値を変更しました（`winThreshold` を 5 -> 14 に設定）。ドキュメントと実装の両方を更新しています。
+  - 変更ファイル:
+    - `scripts/GameState.cs` (`winThreshold` のデフォルトを 5 から 14 に変更)
+    - `Document/story_settings.md` (勝利条件の説明文を更新：5 -> 14)
+  - 実行コマンド:
+    - ファイル編集を apply_patch で実施
+    - `dotnet build uichi_anniversary.sln` を推奨（C# のビルド確認）
+  - 次のアクション:
+    - `dotnet build uichi_anniversary.sln` を実行してビルドが通ることを確認してください。
+    - Godot エディタでゲームを起動し、アイテム取得を繰り返して勝利判定が 14 個で発生することを確認してください。
+
 
 

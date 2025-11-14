@@ -1,0 +1,10 @@
+{
+  "start": "greet",
+  "start_seen": "greet_seen",
+  "nodes": [
+    { "id": "greet", "type": "line", "speaker": "サンプル", "text": "おや、手伝ってくれる？", "next": "ask" },
+    { "id": "ask", "type": "choice", "choices": [ { "text": "助ける", "next": "give" }, { "text": "後で", "next": "end" } ] },
+    { "id": "give", "type": "line", "speaker": "サンプル", "text": "ありがとう。これをどうぞ。", "actions": [ { "give_item": "material_sample" } ], "next": "end" },
+    { "id": "end", "type": "end" }
+  ]
+}

@@ -6,7 +6,10 @@ public partial class DialogManager : Node
 {
     private Control dialogBoxInstance;
     private PackedScene dialogBoxScene;
+    private PackedScene dialogWindowScene;
     private bool dialogBoxSceneValid = false;
+    private bool dialogWindowSceneValid = false;
+    private bool pausedByDialog = false;
     // Debug: force start a default dialogue at scene load to verify UI behavior
     // Set to false for normal runs (was true during debugging and caused the UI to appear at startup)
     private static bool ForceStartForDebug = false;
@@ -43,6 +46,28 @@ public partial class DialogManager : Node
                 // mark invalid so we won't try to instantiate it at runtime
                 dialogBoxScene = null;
                 dialogBoxSceneValid = false;
+            }
+        }
+
+        // preload a modal DialogWindow scene (preferred for modal display)
+        dialogWindowScene = GD.Load<PackedScene>("res://scenes/ui/DialogWindow.tscn");
+        if (dialogWindowScene != null)
+        {
+            try
+            {
+                var testInstW = dialogWindowScene.Instantiate();
+                if (testInstW != null)
+                {
+                    if (testInstW is Node nn) nn.QueueFree();
+                    dialogWindowSceneValid = true;
+                    GD.Print("DialogManager: DialogWindow PackedScene validated OK");
+                }
+            }
+            catch (Exception e)
+            {
+                GD.PrintErr("DialogManager: DialogWindow PackedScene validation failed - will fallback to embedded dialog. Error: ", e.Message);
+                dialogWindowScene = null;
+                dialogWindowSceneValid = false;
             }
         }
 
@@ -97,6 +122,22 @@ public partial class DialogManager : Node
                         }
                         nd["choices"] = arr;
                     }
+                    if (n.TryGetProperty("actions", out var actEl) && actEl.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var aarr = new Godot.Collections.Array();
+                        foreach (var act in actEl.EnumerateArray())
+                        {
+                            var ad = new Godot.Collections.Dictionary();
+                            // copy all string properties from action object
+                            foreach (var p in act.EnumerateObject())
+                            {
+                                if (p.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                                    ad[p.Name] = p.Value.GetString();
+                            }
+                            aarr.Add(ad);
+                        }
+                        nd["actions"] = aarr;
+                    }
                     if (nd.ContainsKey("id"))
                         currentNodeMap[(string)nd["id"]] = nd;
                 }
@@ -132,22 +173,95 @@ public partial class DialogManager : Node
     {
         if (dialogBoxInstance == null)
         {
-            if (dialogBoxScene != null)
+            // Prefer a modal WindowDialog if available
+            if (dialogWindowScene != null && dialogWindowSceneValid)
             {
                 try
                 {
-                    dialogBoxInstance = (Control)dialogBoxScene.Instantiate();
-                    AddChild(dialogBoxInstance);
-                    dialogBoxInstance.Name = "DialogBox";
-                    // connect Next button
+                    dialogBoxInstance = (Control)dialogWindowScene.Instantiate();
+                    // Add to root so it's visually on top and independent of scene tree ordering
+                    GetTree().Root.AddChild(dialogBoxInstance);
+                    dialogBoxInstance.Name = "DialogWindow";
+                    // Pause the tree so gameplay input stops while dialog is open
+                    GetTree().Paused = true;
+                    pausedByDialog = true;
+                    // If WindowDialog, popup centered
+                    // Try to popup centered if the node supports it. Use dynamic call to avoid
+                    // direct WindowDialog type dependency which may cause compile issues in some setups.
+                    try
+                    {
+                        dialogBoxInstance.Call("popup_centered");
+                    }
+                    catch { }
+                    // connect Next button if present
                     var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
                     if (next != null)
                         next.Pressed += OnNextPressed;
                 }
                 catch (Exception e)
                 {
-                    GD.PrintErr("DialogBox instantiate failed: ", e.Message);
-                    // fallback: create a minimal dialog UI programmatically
+                    GD.PrintErr("DialogWindow instantiate failed: ", e.Message);
+                    // fallback to existing dialogBoxScene or programmatic UI below
+                    dialogWindowScene = null;
+                    dialogWindowSceneValid = false;
+                }
+            }
+            // If still null, fall back to previous behavior (embedded DialogBox or programmatic)
+            if (dialogBoxInstance == null)
+            {
+                if (dialogBoxScene != null)
+                {
+                    try
+                    {
+                        dialogBoxInstance = (Control)dialogBoxScene.Instantiate();
+                        AddChild(dialogBoxInstance);
+                        dialogBoxInstance.Name = "DialogBox";
+                        // connect Next button
+                        var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
+                        if (next != null)
+                            next.Pressed += OnNextPressed;
+                    }
+                    catch (Exception e)
+                    {
+                        GD.PrintErr("DialogBox instantiate failed: ", e.Message);
+                        // fallback: create a minimal dialog UI programmatically
+                        dialogBoxInstance = new Control();
+                        dialogBoxInstance.Name = "DialogBox";
+                        var panel = new Panel();
+                        panel.Name = "Panel";
+                        dialogBoxInstance.AddChild(panel);
+                        var vbox = new VBoxContainer();
+                        vbox.Name = "VBox";
+                        panel.AddChild(vbox);
+                        var header = new HBoxContainer();
+                        header.Name = "Header";
+                        vbox.AddChild(header);
+                        var speaker = new Label();
+                        speaker.Name = "Speaker";
+                        speaker.Text = "";
+                        header.AddChild(speaker);
+                        var body = new RichTextLabel();
+                        body.Name = "Body";
+                        body.BbcodeEnabled = false;
+                        vbox.AddChild(body);
+                        var choices = new VBoxContainer();
+                        choices.Name = "Choices";
+                        choices.Visible = false;
+                        vbox.AddChild(choices);
+                        var footer = new HBoxContainer();
+                        footer.Name = "Footer";
+                        vbox.AddChild(footer);
+                        var nextbtn = new Button();
+                        nextbtn.Name = "NextButton";
+                        nextbtn.Text = "次へ";
+                        footer.AddChild(nextbtn);
+                        nextbtn.Pressed += OnNextPressed;
+                        AddChild(dialogBoxInstance);
+                    }
+                }
+                else
+                {
+                    // No scene and no instance: create a minimal dialog UI
                     dialogBoxInstance = new Control();
                     dialogBoxInstance.Name = "DialogBox";
                     var panel = new Panel();
@@ -181,42 +295,6 @@ public partial class DialogManager : Node
                     nextbtn.Pressed += OnNextPressed;
                     AddChild(dialogBoxInstance);
                 }
-            }
-            else
-            {
-                // No scene and no instance: create a minimal dialog UI
-                dialogBoxInstance = new Control();
-                dialogBoxInstance.Name = "DialogBox";
-                var panel = new Panel();
-                panel.Name = "Panel";
-                dialogBoxInstance.AddChild(panel);
-                var vbox = new VBoxContainer();
-                vbox.Name = "VBox";
-                panel.AddChild(vbox);
-                var header = new HBoxContainer();
-                header.Name = "Header";
-                vbox.AddChild(header);
-                var speaker = new Label();
-                speaker.Name = "Speaker";
-                speaker.Text = "";
-                header.AddChild(speaker);
-                var body = new RichTextLabel();
-                body.Name = "Body";
-                body.BbcodeEnabled = false;
-                vbox.AddChild(body);
-                var choices = new VBoxContainer();
-                choices.Name = "Choices";
-                choices.Visible = false;
-                vbox.AddChild(choices);
-                var footer = new HBoxContainer();
-                footer.Name = "Footer";
-                vbox.AddChild(footer);
-                var nextbtn = new Button();
-                nextbtn.Name = "NextButton";
-                nextbtn.Text = "次へ";
-                footer.AddChild(nextbtn);
-                nextbtn.Pressed += OnNextPressed;
-                AddChild(dialogBoxInstance);
             }
         }
         if (dialogBoxInstance != null)
@@ -351,6 +429,39 @@ public partial class DialogManager : Node
             {
                 // not implemented: placeholder for future
             }
+
+            // actions: e.g. give_item
+            if (nd.ContainsKey("actions"))
+            {
+                var actions = (Godot.Collections.Array)nd["actions"];
+                foreach (var a in actions)
+                {
+                    var ad = (Godot.Collections.Dictionary)a;
+                    if (ad.ContainsKey("give_item"))
+                    {
+                        var itemId = (string)ad["give_item"];
+                        try
+                        {
+                            // ensure GameState exists
+                            GameState.EnsureInstance(GetTree());
+                            if (GameState.Instance != null)
+                            {
+                                GameState.Instance.AddItem(itemId);
+                                GD.Print($"DialogManager: give_item executed -> {itemId}");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            GD.PrintErr("DialogManager: give_item failed: ", e.Message);
+                        }
+                    }
+                    if (ad.ContainsKey("set_flag"))
+                    {
+                        // placeholder for flag handling
+                        GD.Print("DialogManager: set_flag: ", (string)ad["set_flag"]);
+                    }
+                }
+            }
         }
         else if (type == "choice")
         {
@@ -446,7 +557,22 @@ public partial class DialogManager : Node
 
     public void StopDialogue()
     {
-        HideDialogBox();
+        // free the dialog instance so it won't remain in the scene tree
+        if (dialogBoxInstance != null)
+        {
+            try
+            {
+                dialogBoxInstance.QueueFree();
+            }
+            catch { }
+            dialogBoxInstance = null;
+        }
+        // restore paused state if we paused the tree for the dialog
+        if (pausedByDialog)
+        {
+            try { GetTree().Paused = false; } catch { }
+            pausedByDialog = false;
+        }
         currentNodeMap = null;
         currentNodeId = null;
         currentNpcId = null;
