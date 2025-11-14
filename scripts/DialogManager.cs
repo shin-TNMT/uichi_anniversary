@@ -307,7 +307,23 @@ public partial class DialogManager : Node
                         {
                             // ensure interactive
                             EnsureButtonInteractive(next);
-                            next.Pressed += OnNextPressed;
+                            // attach pressed handler if not already connected
+                            try
+                            {
+                                var callable = new Callable(this, nameof(OnNextPressed));
+                                if (!next.IsConnected("pressed", callable))
+                                    next.Pressed += OnNextPressed;
+                            }
+                            catch { next.Pressed += OnNextPressed; }
+                            // Diagnostic: log GUI input events on the Next button to see if clicks reach it
+                            try
+                            {
+                                next.GuiInput += (InputEvent ev) =>
+                                {
+                                    try { GD.Print($"DEBUG: NextButton GuiInput: type={ev.GetType().Name} pressed_btn={ev.IsPressed()}"); } catch { GD.Print("DEBUG: NextButton GuiInput event"); }
+                                };
+                            }
+                            catch { }
                         }
                     }
                 }
