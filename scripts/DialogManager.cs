@@ -245,8 +245,8 @@ public partial class DialogManager : Node
                             SetPauseModeRecursively(dialogBoxInstance);
                         }
                         catch { }
-                        // If WindowDialog, popup centered (use dynamic call to avoid type dependency)
-                        try { dialogBoxInstance.Call("popup_centered"); } catch { }
+                        // If WindowDialog, popup centered (call only if method exists)
+                        try { if (dialogBoxInstance.HasMethod("popup_centered")) dialogBoxInstance.Call("popup_centered"); } catch { }
                         // connect Next button if present
                         var next = dialogBoxInstance.GetNodeOrNull<Button>("Panel/VBox/Footer/NextButton");
                         if (next != null)
@@ -426,13 +426,20 @@ public partial class DialogManager : Node
         if (next == null)
         {
             next = FindNodeByNameSuffix<Button>(dialogBoxInstance, "NextButton");
-                if (next != null)
+            if (next != null)
+            {
+                GD.Print("ShowCurrentNode: NextButton found by suffix: ", next.Name);
+                try
                 {
-                    GD.Print("ShowCurrentNode: NextButton found by suffix: ", next.Name);
-                    // ensure the Next button is connected - removal can throw if not connected, so guard it
-                    try { next.Pressed -= OnNextPressed; } catch { }
-                    try { next.Pressed += OnNextPressed; } catch (Exception e) { GD.PrintErr("Failed to connect NextButton: ", e.Message); }
+                    // Avoid engine-level disconnect warnings by only adding the handler if not already connected
+                    if (!next.IsConnected("pressed", this, nameof(OnNextPressed)))
+                        next.Pressed += OnNextPressed;
                 }
+                catch (Exception e)
+                {
+                    GD.PrintErr("Failed to connect NextButton safely: ", e.Message);
+                }
+            }
         }
 
         // reset choices
