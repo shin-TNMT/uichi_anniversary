@@ -2,7 +2,7 @@
 [gd_scene load_steps=3 format=4]
 
 [ext_resource path="res://scripts/Player.cs" type="Script" id=1]
-[ext_resource path="res://assets/characters/playre_sample.png" type="Texture2D" id=2]
+[ext_resource path="res://assets/characters/uichi/uichi-front-stand.png" type="Texture2D" id=2]
 
 [sub_resource type="CircleShape2D" id=3]
 radius = 8.0
