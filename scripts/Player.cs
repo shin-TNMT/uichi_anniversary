@@ -17,13 +17,13 @@ public partial class Player : CharacterBody2D
     [Export]
     public bool SpriteFacesRight { get; set; } = true;
 
-    private Sprite2D sprite;
+    private AnimatedSprite2D sprite;
     private Vector2 baseSpritePos = Vector2.Zero;
     private double bobTimer = 0.0;
 
     public override void _Ready()
     {
-        sprite = GetNodeOrNull<Sprite2D>("Sprite");
+        sprite = GetNodeOrNull<AnimatedSprite2D>("Sprite");
         if (sprite != null)
         {
             baseSpritePos = sprite.Position;
@@ -63,6 +63,20 @@ public partial class Player : CharacterBody2D
         {
             float offsetY = (float)(Math.Sin(bobTimer) * BobAmplitude * (isMoving ? 1.0 : 0.0));
             sprite.Position = baseSpritePos + new Vector2(0, offsetY);
+
+            // Decide which animation set to use: front vs back
+            string orient = "front";
+            if (input.Y < 0) orient = "back"; // moving up -> back view
+
+            if (isMoving)
+            {
+                try { sprite.Play(orient + "_walk"); } catch { }
+            }
+            else
+            {
+                try { sprite.Play(orient + "_stand"); } catch { }
+            }
+
             // Flip sprite horizontally based on input direction.
             // Respect `SpriteFacesRight` so the art's base facing can be configured.
             if (input.X < 0)
