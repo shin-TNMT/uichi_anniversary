@@ -579,6 +579,20 @@ public partial class DialogManager : Node
                     body.AppendText((string)nd["text"]);
                     // Attempt to reset scroll to top so text is immediately visible
                     try { body.ScrollToLine(0); } catch { }
+                    // Fallback: if the RichTextLabel is too small in the scene, enforce a sensible minimum
+                    try
+                    {
+                        // Try to read current rect size; fall back safely if property access differs across bindings
+                        Vector2 rectSize = new Vector2();
+                        try { rectSize = (Vector2)body.Get("rect_size"); } catch { rectSize = new Vector2(); }
+                        if (rectSize.X < 120f || rectSize.Y < 32f)
+                        {
+                            try { body.Set("rect_min_size", new Vector2(240f, 64f)); } catch { body.Set("rect_min_size", new Vector2(240f, 64f)); }
+                        }
+                        // Ensure autowrap is enabled so long lines become visible
+                        try { body.Set("autowrap", true); } catch { }
+                    }
+                    catch { }
                     // No explicit redraw call available; rely on the engine to refresh the control
                     GD.Print("ShowCurrentNode: body set=", (string)nd["text"]);
                 }

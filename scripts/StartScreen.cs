@@ -8,21 +8,21 @@ public partial class StartScreen : CanvasLayer
         GD.Print("StartScreen ready");
         try
         {
-            var startBtn = GetNode("VBox/StartButton");
+            var startBtn = GetNode("VBox/ButtonsWrapper/Buttons/StartButton");
             if (startBtn != null)
             {
                 startBtn.Connect("pressed", new Callable(this, nameof(OnStartPressed)));
                 GD.Print("Connected StartButton");
             }
 
-            var optionsBtn = GetNode("VBox/OptionsButton");
+            var optionsBtn = GetNode("VBox/ButtonsWrapper/Buttons/OptionsButton");
             if (optionsBtn != null)
             {
                 optionsBtn.Connect("pressed", new Callable(this, nameof(OnOptionsPressed)));
                 GD.Print("Connected OptionsButton");
             }
 
-            var quitBtn = GetNode("VBox/QuitButton");
+            var quitBtn = GetNode("VBox/ButtonsWrapper/Buttons/QuitButton");
             if (quitBtn != null)
             {
                 quitBtn.Connect("pressed", new Callable(this, nameof(OnQuitPressed)));

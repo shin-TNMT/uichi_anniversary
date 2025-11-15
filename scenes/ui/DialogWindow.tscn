@@ -19,7 +19,11 @@ layout_mode = 0
 text = "Speaker"
 
 [node name="Panel_VBox#Body" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(256, 48)
 layout_mode = 0
+offset_top = 24.0
+offset_right = 640.0
+offset_bottom = 112.0
 
 [node name="Panel_VBox#Choices" type="VBoxContainer" parent="."]
 visible = false
@@ -30,7 +34,8 @@ layout_mode = 0
 
 [node name="Panel_VBox_Footer#NextButton" type="Button" parent="."]
 layout_mode = 0
-offset_top = 27.0
-offset_right = 38.0
-offset_bottom = 58.0
+offset_left = 600.0
+offset_top = 120.0
+offset_right = 638.0
+offset_bottom = 151.0
 text = "次へ"
