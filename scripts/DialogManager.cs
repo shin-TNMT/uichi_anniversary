@@ -570,9 +570,16 @@ public partial class DialogManager : Node
             {
                 try
                 {
+                    // Ensure the body is visible and configured for plain text.
+                    try { body.Visible = true; } catch { }
+                    try { body.Show(); } catch { }
+                    try { body.BbcodeEnabled = false; } catch { }
                     // Clear previous text and append new text to ensure visibility
                     body.Clear();
                     body.AppendText((string)nd["text"]);
+                    // Attempt to reset scroll to top so text is immediately visible
+                    try { body.ScrollToLine(0); } catch { }
+                    // No explicit redraw call available; rely on the engine to refresh the control
                     GD.Print("ShowCurrentNode: body set=", (string)nd["text"]);
                 }
                 catch (Exception e)
