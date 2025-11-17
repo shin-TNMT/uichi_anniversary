@@ -1,41 +1,58 @@
+
 [gd_scene format=3 uid="uid://cyx53x65jdiyy"]
 
 [node name="DialogWindow" type="Panel"]
-anchors_preset = -1
-anchor_right = 0.8
-anchor_bottom = 0.4
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 
-[node name="DialogWindow#Panel" type="Panel" parent="."]
-layout_mode = 0
+; Top area: speaker image (takes upper 2/3 of the screen)
+[node name="SpeakerArea" type="CenterContainer" parent="."]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.6666667
 
-[node name="Panel#VBox" type="VBoxContainer" parent="."]
-layout_mode = 0
-
-[node name="Panel_VBox#Header" type="HBoxContainer" parent="."]
-layout_mode = 0
-
-[node name="Panel_VBox_Header#Speaker" type="Label" parent="."]
-layout_mode = 0
-text = "Speaker"
-
-[node name="Panel_VBox#Body" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(256, 48)
-layout_mode = 0
-offset_top = 24.0
-offset_right = 640.0
-offset_bottom = 112.0
-
-[node name="Panel_VBox#Choices" type="VBoxContainer" parent="."]
+[node name="SpeakerImage" type="TextureRect" parent="SpeakerArea"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch_mode = 0 ; keep centered
+expand = false
 visible = false
-layout_mode = 0
 
-[node name="Panel_VBox#Footer" type="HBoxContainer" parent="."]
-layout_mode = 0
+; Bottom panel: contains existing dialog UI, anchored to lower 1/3
+[node name="Panel" type="Panel" parent="."]
+anchor_left = 0.0
+anchor_top = 0.6666667
+anchor_right = 1.0
+anchor_bottom = 1.0
 
-[node name="Panel_VBox_Footer#NextButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 600.0
-offset_top = 120.0
-offset_right = 638.0
-offset_bottom = 151.0
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+custom_minimum_size = Vector2(640, 180)
+separation = 8
+
+[node name="Header" type="HBoxContainer" parent="Panel/VBox"]
+size_flags_horizontal = 3
+
+[node name="Speaker" type="Label" parent="Panel/VBox/Header"]
+text = "Speaker"
+custom_minimum_size = Vector2(200, 24)
+
+[node name="Body" type="RichTextLabel" parent="Panel/VBox"]
+custom_minimum_size = Vector2(640, 96)
+bbcode_enabled = false
+autowrap = true
+
+[node name="Choices" type="VBoxContainer" parent="Panel/VBox"]
+visible = false
+
+[node name="Footer" type="HBoxContainer" parent="Panel/VBox"]
+size_flags_horizontal = 3
+
+[node name="NextButton" type="Button" parent="Panel/VBox/Footer"]
 text = "次へ"
+align = 2
+

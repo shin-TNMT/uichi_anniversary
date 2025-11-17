@@ -565,6 +565,75 @@ public partial class DialogManager : Node
             {
                 speakerLabel.Text = (string)nd["speaker"];
                 GD.Print("ShowCurrentNode: speaker set=", speakerLabel.Text);
+                // Try to set a speaker image in the top area if available.
+                try
+                {
+                    var speakerImage = dialogBoxInstance?.GetNodeOrNull<TextureRect>("SpeakerImage");
+                    if (speakerImage == null)
+                        speakerImage = FindNodeByNameSuffix<TextureRect>(dialogBoxInstance, "SpeakerImage");
+                    if (speakerImage != null)
+                    {
+                        // hide by default
+                        try { speakerImage.Visible = false; } catch { }
+                        string imagePath = null;
+                        if (nd.ContainsKey("speaker_image"))
+                        {
+                            imagePath = nd["speaker_image"].ToString();
+                        }
+                        else
+                        {
+                            // simple heuristic: if speaker name mentions 'uichi', show uichi front stand
+                            try
+                            {
+                                var sp = ((string)nd["speaker"]).ToLower();
+                                if (sp.Contains("uichi"))
+                                    imagePath = "res://assets/characters/uichi/uichi-front-stand.png";
+                            }
+                            catch { }
+                        }
+                        // fallback: if no speaker_image provided, try using the NPC id (currentNpcId)
+                        if (string.IsNullOrEmpty(imagePath) && !string.IsNullOrEmpty(currentNpcId))
+                        {
+                            try
+                            {
+                                var candidate = $"res://assets/characters/{currentNpcId}_standing_picture.png";
+                                // only set if file exists
+                                bool exists2 = false;
+                                try { exists2 = FileAccess.FileExists(candidate); } catch { }
+                                GD.Print($"DialogManager: Fallback candidate image='{candidate}' exists={exists2}");
+                                if (exists2)
+                                    imagePath = candidate;
+                            }
+                            catch { }
+                        }
+                        if (!string.IsNullOrEmpty(imagePath))
+                        {
+                            try
+                            {
+                                // diagnostic: check file exists
+                                bool exists = false;
+                                try { exists = FileAccess.FileExists(imagePath); } catch { }
+                                GD.Print($"DialogManager: Speaker image path='{imagePath}' exists={exists}");
+                                var tex = GD.Load<Texture2D>(imagePath);
+                                GD.Print($"DialogManager: Load texture result for '{imagePath}': "+(tex!=null));
+                                if (tex != null)
+                                {
+                                    speakerImage.Texture = tex;
+                                    try { speakerImage.Visible = true; } catch { }
+                                }
+                                else
+                                {
+                                    GD.PrintErr("DialogManager: failed to load texture for speaker image: ", imagePath);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                GD.PrintErr("DialogManager: exception loading speaker image: ", e.Message);
+                            }
+                        }
+                    }
+                }
+                catch { }
             }
             if (body != null && nd.ContainsKey("text"))
             {
