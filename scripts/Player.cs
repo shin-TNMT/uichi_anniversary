@@ -24,11 +24,16 @@ public partial class Player : CharacterBody2D
     private Texture2D texBackStand;
     private Texture2D texBackWalk1;
     private Texture2D texBackWalk2;
+    // Left/right directional frames (some assets provide 3 frames: left-1..3 / right-1..3)
+    private Texture2D[] texLeft = new Texture2D[3];
+    private Texture2D[] texRight = new Texture2D[3];
     private float walkAnimTimer = 0.0f;
     private int walkAnimIndex = 0;
     private float walkAnimInterval = 0.2f;
     private Vector2 baseSpritePos = Vector2.Zero;
     private double bobTimer = 0.0;
+    // remember last non-zero input direction so we can choose a standing frame
+    private Vector2 lastInputDirection = Vector2.Zero;
 
     public override void _Ready()
     {
@@ -40,6 +45,13 @@ public partial class Player : CharacterBody2D
         try { texBackStand = GD.Load<Texture2D>("res://assets/characters/uichi/uichi-back-stand.png"); } catch { }
         try { texBackWalk1 = GD.Load<Texture2D>("res://assets/characters/uichi/uichi-back-walk1.png"); } catch { }
         try { texBackWalk2 = GD.Load<Texture2D>("res://assets/characters/uichi/uichi-back-walk2.png"); } catch { }
+        // load left/right frames if present
+        try { texLeft[0] = GD.Load<Texture2D>("res://assets/characters/uichi/left-1.png"); } catch { }
+        try { texLeft[1] = GD.Load<Texture2D>("res://assets/characters/uichi/left-2.png"); } catch { }
+        try { texLeft[2] = GD.Load<Texture2D>("res://assets/characters/uichi/left-3.png"); } catch { }
+        try { texRight[0] = GD.Load<Texture2D>("res://assets/characters/uichi/right-1.png"); } catch { }
+        try { texRight[1] = GD.Load<Texture2D>("res://assets/characters/uichi/right-2.png"); } catch { }
+        try { texRight[2] = GD.Load<Texture2D>("res://assets/characters/uichi/right-3.png"); } catch { }
         if (sprite != null)
         {
             baseSpritePos = sprite.Position;
@@ -68,6 +80,8 @@ public partial class Player : CharacterBody2D
         if (isMoving)
         {
             bobTimer += delta * BobSpeed;
+            // remember last movement direction to determine facing when stopping
+            lastInputDirection = input;
         }
         else
         {
@@ -80,8 +94,8 @@ public partial class Player : CharacterBody2D
             float offsetY = (float)(Math.Sin(bobTimer) * BobAmplitude * (isMoving ? 1.0 : 0.0));
             sprite.Position = baseSpritePos + new Vector2(0, offsetY);
 
-            // Decide front/back
-            bool useBack = input.Y < 0;
+            // Decide front/back. When not moving, use lastInputDirection so stopping preserves facing.
+            bool useBack = (isMoving) ? (input.Y < 0) : (lastInputDirection.Y < 0);
 
             if (isMoving)
             {
@@ -90,15 +104,48 @@ public partial class Player : CharacterBody2D
                 if (walkAnimTimer >= walkAnimInterval)
                 {
                     walkAnimTimer = 0.0f;
-                    walkAnimIndex = (walkAnimIndex + 1) % 2;
+                    // advance index; maximum frames depends on which directional frames are available
+                    walkAnimIndex = walkAnimIndex + 1;
                 }
-                if (!useBack)
+
+                // Horizontal movement has priority for left/right frames
+                if (Math.Abs(input.X) > 0.0f && (texLeft[0] != null || texRight[0] != null))
                 {
-                    sprite.Texture = (walkAnimIndex == 0 && texFrontWalk1 != null) ? texFrontWalk1 : (texFrontWalk2 != null ? texFrontWalk2 : texFrontStand);
+                    // choose side frames
+                    Texture2D[] frames = input.X < 0 ? texLeft : texRight;
+                    // count how many frames are available
+                    int available = 0;
+                    for (int i = 0; i < frames.Length; i++) if (frames[i] != null) available++;
+                    if (available == 0)
+                    {
+                        // fallback to front/back animation
+                        if (!useBack)
+                        {
+                            sprite.Texture = (walkAnimIndex % 2 == 0 && texFrontWalk1 != null) ? texFrontWalk1 : (texFrontWalk2 != null ? texFrontWalk2 : texFrontStand);
+                        }
+                        else
+                        {
+                            sprite.Texture = (walkAnimIndex % 2 == 0 && texBackWalk1 != null) ? texBackWalk1 : (texBackWalk2 != null ? texBackWalk2 : texBackStand);
+                        }
+                    }
+                    else
+                    {
+                        // wrap index within available frames
+                        int idx = (available > 0) ? (walkAnimIndex % available) : 0;
+                        sprite.Texture = frames[idx] ?? texFrontStand;
+                    }
                 }
                 else
                 {
-                    sprite.Texture = (walkAnimIndex == 0 && texBackWalk1 != null) ? texBackWalk1 : (texBackWalk2 != null ? texBackWalk2 : texBackStand);
+                    // vertical movement: use front/back frames
+                    if (!useBack)
+                    {
+                        sprite.Texture = (walkAnimIndex % 2 == 0 && texFrontWalk1 != null) ? texFrontWalk1 : (texFrontWalk2 != null ? texFrontWalk2 : texFrontStand);
+                    }
+                    else
+                    {
+                        sprite.Texture = (walkAnimIndex % 2 == 0 && texBackWalk1 != null) ? texBackWalk1 : (texBackWalk2 != null ? texBackWalk2 : texBackStand);
+                    }
                 }
             }
             else
@@ -106,19 +153,39 @@ public partial class Player : CharacterBody2D
                 // standing
                 walkAnimIndex = 0;
                 walkAnimTimer = 0.0f;
-                sprite.Texture = useBack ? (texBackStand ?? texFrontStand) : (texFrontStand ?? texBackStand);
+                // prefer directional stand frames if available; otherwise fallback
+                // use lastInputDirection.X to determine left/right when stopped
+                if (Math.Abs(lastInputDirection.X) > 0 && (texLeft[0] != null || texRight[0] != null))
+                {
+                    if (lastInputDirection.X < 0 && texLeft[1] != null) sprite.Texture = texLeft[1];
+                    else if (lastInputDirection.X > 0 && texRight[1] != null) sprite.Texture = texRight[1];
+                    else sprite.Texture = useBack ? (texBackStand ?? texFrontStand) : (texFrontStand ?? texBackStand);
+                }
+                else
+                {
+                    sprite.Texture = useBack ? (texBackStand ?? texFrontStand) : (texFrontStand ?? texBackStand);
+                }
             }
 
-            // Flip sprite horizontally based on input direction.
-            if (input.X < 0)
+            // Flip sprite horizontally when using front/back assets only.
+            bool hasHorizontalFrames = (texLeft[0] != null || texRight[0] != null);
+            if (!hasHorizontalFrames)
             {
-                bool faceRight = false;
-                sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+                if (input.X < 0)
+                {
+                    bool faceRight = false;
+                    sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+                }
+                else if (input.X > 0)
+                {
+                    bool faceRight = true;
+                    sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+                }
             }
-            else if (input.X > 0)
+            else
             {
-                bool faceRight = true;
-                sprite.FlipH = SpriteFacesRight ? !faceRight : faceRight;
+                // we are using dedicated left/right images — ensure no horizontal flip
+                sprite.FlipH = false;
             }
         }
     }
