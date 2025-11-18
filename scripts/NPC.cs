@@ -40,6 +40,54 @@ public partial class NPC : Node2D
         if (sprite != null)
             basePos = sprite.Position;
 
+        // Adjust collision shapes to match sprite texture size when possible
+        try
+        {
+            var bodyCol = GetNodeOrNull<CollisionShape2D>("Body/BodyCollision");
+            var areaCol = GetNodeOrNull<CollisionShape2D>("Area/Collision");
+            if (sprite != null && sprite.Texture != null)
+            {
+                Vector2 texSize = new Vector2();
+                try
+                {
+                    // prefer GetSize() if available
+                    texSize = sprite.Texture.GetSize();
+                }
+                catch
+                {
+                    // fallback to property access
+                    try { texSize = (Vector2)sprite.Texture.Get("size"); } catch { }
+                }
+                // consider sprite scale
+                try { texSize = texSize * sprite.Scale; } catch { }
+                if (texSize == Vector2.Zero)
+                {
+                    // fallback to a reasonable default
+                    texSize = new Vector2(32, 32);
+                }
+
+                // extents = half-size
+                var extents = texSize / 2.0f;
+
+                if (bodyCol != null && bodyCol.Shape != null)
+                {
+                    try { bodyCol.Shape.Set("extents", extents); } catch { }
+                }
+                if (areaCol != null && areaCol.Shape != null)
+                {
+                    try { areaCol.Shape.Set("extents", extents); } catch { }
+                }
+                // align collision shape positions with sprite offset if present
+                try { if (bodyCol != null) bodyCol.Position = sprite.Position; } catch { }
+                try { if (areaCol != null) areaCol.Position = sprite.Position; } catch { }
+                GD.Print($"NPC: set collision extents to {extents}");
+            }
+        }
+        catch (Exception e)
+        {
+            GD.PrintErr("NPC: failed to adjust collision extents: ", e.Message);
+        }
+
         var area = GetNodeOrNull<Area2D>("Area");
         if (area != null)
         {
@@ -86,10 +134,24 @@ public partial class NPC : Node2D
                 var bodyCol = GetNodeOrNull<CollisionShape2D>("Body/BodyCollision");
                 if (bodyCol != null)
                 {
-                    if (bodyCol.Shape is RectangleShape2D r)
+                    try
                     {
-                        npcRadius = Math.Max(r.Extents.X, r.Extents.Y);
+                        // RectangleShape2D may not expose Extents as a C# property in some bindings; use Get("extents") fallback
+                        var shape = bodyCol.Shape;
+                        if (shape != null)
+                        {
+                            Vector2 ext = new Vector2();
+                            try { ext = (Vector2)shape.Get("extents"); } catch { }
+                            if (ext == Vector2.Zero)
+                            {
+                                // try alternate name
+                                try { ext = (Vector2)shape.Get("size"); } catch { }
+                            }
+                            if (ext != Vector2.Zero)
+                                npcRadius = Math.Max(ext.X, ext.Y);
+                        }
                     }
+                    catch { }
                 }
                 // compute direction and reposition player just outside NPC
                 var dir = (cb.GlobalPosition - GlobalPosition);
