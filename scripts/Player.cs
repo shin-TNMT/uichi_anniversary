@@ -32,6 +32,7 @@ public partial class Player : CharacterBody2D
     private float walkAnimInterval = 0.2f;
     private Vector2 baseSpritePos = Vector2.Zero;
     private double bobTimer = 0.0;
+    private RayCast2D obstacleRay;
     // remember last non-zero input direction so we can choose a standing frame
     private Vector2 lastInputDirection = Vector2.Zero;
 
@@ -56,6 +57,21 @@ public partial class Player : CharacterBody2D
         {
             baseSpritePos = sprite.Position;
         }
+        // create a RayCast2D to detect obstacles ahead (e.g., NPC static bodies)
+        try
+        {
+            obstacleRay = GetNodeOrNull<RayCast2D>("ObstacleCheck");
+            if (obstacleRay == null)
+            {
+                obstacleRay = new RayCast2D();
+                obstacleRay.Name = "ObstacleCheck";
+                obstacleRay.Enabled = true;
+                // Only check layer 2 (NPCs) — use Set to be safe across bindings
+                try { obstacleRay.Set("collision_mask", 2); } catch { }
+                AddChild(obstacleRay);
+            }
+        }
+        catch { }
         GD.Print("Player ready at: ", GlobalPosition);
     }
 
@@ -73,7 +89,29 @@ public partial class Player : CharacterBody2D
         }
 
         Velocity = input * Speed;
-        MoveAndSlide();
+        // Prevent movement into immediate obstacles detected by front ray
+        bool blocked = false;
+        try
+        {
+            if (obstacleRay != null && input.Length() > 0)
+            {
+                var dir = input.Normalized();
+                // set cast length to a bit larger than collision radii
+                float castLen = 20.0f + Speed * 0.02f;
+                try { obstacleRay.Set("cast_to", dir * castLen); } catch { obstacleRay.Set("cast_to", dir * castLen); }
+                try { obstacleRay.ForceRaycastUpdate(); } catch { }
+                try { blocked = obstacleRay.IsColliding(); } catch { blocked = false; }
+            }
+        }
+        catch { blocked = false; }
+
+        if (!blocked)
+            MoveAndSlide();
+        else
+        {
+            // stop horizontal movement if obstacle detected
+            Velocity = Vector2.Zero;
+        }
 
         // Procedural bobbing when moving
         bool isMoving = input.Length() > 0.0f;
