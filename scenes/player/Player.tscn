@@ -16,6 +16,8 @@ radius = 8.0
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource(1)
 SpriteFacesRight = false
+collision_layer = 1
+collision_mask = 2
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource(2)
