@@ -18,3 +18,9 @@ centered = true
 
 [node name="Collision" type="CollisionShape2D" parent="Area"]
 shape = SubResource(3)
+
+; Static body to block player movement (prevents passing through NPC)
+[node name="Body" type="StaticBody2D" parent="."]
+
+[node name="BodyCollision" type="CollisionShape2D" parent="Body"]
+shape = SubResource(3)
