@@ -70,6 +70,39 @@ public partial class NPC : Node2D
             var cb = body as CharacterBody2D;
             if (cb != null)
                 FaceTowards(cb.GlobalPosition);
+            // Ensure player is not overlapping the NPC by pushing them outside the collision extents
+            try
+            {
+                // get player collision radius (if CircleShape2D)
+                float playerRadius = 8.0f;
+                var pCol = cb.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+                if (pCol != null)
+                {
+                    if (pCol.Shape is CircleShape2D c)
+                        playerRadius = c.Radius;
+                }
+                // get NPC body collision approximate radius (use max extent)
+                float npcRadius = 16.0f;
+                var bodyCol = GetNodeOrNull<CollisionShape2D>("Body/BodyCollision");
+                if (bodyCol != null)
+                {
+                    if (bodyCol.Shape is RectangleShape2D r)
+                    {
+                        npcRadius = Math.Max(r.Extents.X, r.Extents.Y);
+                    }
+                }
+                // compute direction and reposition player just outside NPC
+                var dir = (cb.GlobalPosition - GlobalPosition);
+                if (dir.Length() == 0) dir = new Vector2(0, -1);
+                dir = dir.Normalized();
+                var desired = GlobalPosition + dir * (npcRadius + playerRadius + 0.5f);
+                try { cb.GlobalPosition = desired; } catch { }
+                try { cb.Velocity = Vector2.Zero; } catch { }
+            }
+            catch (Exception e)
+            {
+                GD.PrintErr("NPC: error while correcting player overlap: ", e.Message);
+            }
             // emit signal for UI or controller
             EmitSignal("PlayerInteracted", body);
             // Attempt to start dialogue via DialogManager instance if available
