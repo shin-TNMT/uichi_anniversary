@@ -33,6 +33,7 @@ public partial class Player : CharacterBody2D
     private Vector2 baseSpritePos = Vector2.Zero;
     private double bobTimer = 0.0;
     private RayCast2D obstacleRay;
+    private float playerCollisionRadius = 8.0f;
     // remember last non-zero input direction so we can choose a standing frame
     private Vector2 lastInputDirection = Vector2.Zero;
 
@@ -57,6 +58,14 @@ public partial class Player : CharacterBody2D
         {
             baseSpritePos = sprite.Position;
         }
+        // detect player collision radius from CollisionShape2D if available
+        try
+        {
+            var pCol = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+            if (pCol != null && pCol.Shape is CircleShape2D cshape)
+                playerCollisionRadius = cshape.Radius;
+        }
+        catch { }
         // create a RayCast2D to detect obstacles ahead (e.g., NPC static bodies)
         try
         {
@@ -89,18 +98,14 @@ public partial class Player : CharacterBody2D
         }
 
         Velocity = input * Speed;
-        // Prevent movement into immediate obstacles detected by front ray
+        // Use shape-based query to test if moving by this frame's displacement would collide
+        var displacement = Velocity * (float)delta;
         bool blocked = false;
         try
         {
-            if (obstacleRay != null && input.Length() > 0)
+            if (displacement.Length() > 0.0f)
             {
-                var dir = input.Normalized();
-                // set cast length to a bit larger than collision radii
-                float castLen = 20.0f + Speed * 0.02f;
-                try { obstacleRay.Set("cast_to", dir * castLen); } catch { obstacleRay.Set("cast_to", dir * castLen); }
-                try { obstacleRay.ForceRaycastUpdate(); } catch { }
-                try { blocked = obstacleRay.IsColliding(); } catch { blocked = false; }
+                blocked = IsMoveBlocked(displacement);
             }
         }
         catch { blocked = false; }
@@ -109,7 +114,7 @@ public partial class Player : CharacterBody2D
             MoveAndSlide();
         else
         {
-            // stop horizontal movement if obstacle detected
+            // cancel movement when blocked
             Velocity = Vector2.Zero;
         }
 
@@ -226,5 +231,35 @@ public partial class Player : CharacterBody2D
                 sprite.FlipH = false;
             }
         }
+    }
+
+    // Test whether moving by 'displacement' would overlap NPCs or other obstacles on layer 2
+    private bool IsMoveBlocked(Vector2 displacement)
+    {
+        try
+        {
+            var ds = GetWorld2D().DirectSpaceState;
+            var shape = new CircleShape2D();
+            try { shape.Radius = playerCollisionRadius; } catch { }
+
+            var paramsObj = new PhysicsShapeQueryParameters2D();
+            try { paramsObj.Set("shape", shape); } catch { paramsObj.Shape = shape; }
+            // position the test at the would-be global position
+            var testPos = GlobalPosition + displacement;
+            try { paramsObj.Set("transform", new Transform2D(0, testPos)); } catch { paramsObj.Transform = new Transform2D(0, testPos); }
+            // check only collision layer 2 (NPCs)
+            try { paramsObj.Set("collision_mask", 2); } catch { paramsObj.CollisionMask = 2; }
+            // exclude self
+            try { paramsObj.Set("exclude", new Godot.Collections.Array { this }); } catch { }
+
+            var results = ds.IntersectShape(paramsObj, 1);
+            if (results != null && results.Count > 0)
+                return true;
+        }
+        catch
+        {
+            // fallback: not blocked
+        }
+        return false;
     }
 }
