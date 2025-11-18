@@ -101,11 +101,19 @@ public partial class NPC : Node2D
         }
 
         var area = GetNodeOrNull<Area2D>("Area");
+        GD.Print($"NPC '{DisplayName}': looking for Area node -> {(area != null ? "found" : "NOT FOUND")}");
         if (area != null)
         {
+            // diagnostic: print area properties
+            try { GD.Print($"Area.Monitoring={area.Monitoring} Monitorable={area.Monitorable}"); } catch { }
+            try { GD.Print($"Area.CollisionLayer={area.CollisionLayer} CollisionMask={area.CollisionMask}"); } catch
+            {
+                try { GD.Print($"Area collision_layer={area.Get("collision_layer")} collision_mask={area.Get("collision_mask")} "); } catch { }
+            }
             // Connect signals in a safe way
             area.BodyEntered += OnBodyEntered;
             area.BodyExited += OnBodyExited;
+            GD.Print($"NPC '{DisplayName}': connected Area.BodyEntered/Exited signals");
         }
     }
 
@@ -141,51 +149,8 @@ public partial class NPC : Node2D
         {
             GD.Print($"NPC '{DisplayName}': Player entered: {body.Name}");
             FaceTowards(cb.GlobalPosition);
-            // Ensure player is not overlapping the NPC by pushing them outside the collision extents
-            try
-            {
-                // get player collision radius (if CircleShape2D)
-                float playerRadius = 8.0f;
-                var pCol = cb.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-                if (pCol != null)
-                {
-                    if (pCol.Shape is CircleShape2D c)
-                        playerRadius = c.Radius;
-                }
-                // get NPC body collision approximate radius (use max extent)
-                float npcRadius = 16.0f;
-                var bodyCol = GetNodeOrNull<CollisionShape2D>("Body/BodyCollision");
-                if (bodyCol != null)
-                {
-                    try
-                    {
-                        var shape = bodyCol.Shape;
-                        if (shape != null)
-                        {
-                            Vector2 ext = new Vector2();
-                            try { ext = (Vector2)shape.Get("extents"); } catch { }
-                            if (ext == Vector2.Zero)
-                            {
-                                try { ext = (Vector2)shape.Get("size"); } catch { }
-                            }
-                            if (ext != Vector2.Zero)
-                                npcRadius = Math.Max(ext.X, ext.Y);
-                        }
-                    }
-                    catch { }
-                }
-                // compute direction and reposition player just outside NPC
-                var dir = (cb.GlobalPosition - GlobalPosition);
-                if (dir.Length() == 0) dir = new Vector2(0, -1);
-                dir = dir.Normalized();
-                var desired = GlobalPosition + dir * (npcRadius + playerRadius + 0.5f);
-                try { cb.GlobalPosition = desired; } catch { }
-                try { cb.Velocity = Vector2.Zero; } catch { }
-            }
-            catch (Exception e)
-            {
-                GD.PrintErr("NPC: error while correcting player overlap: ", e.Message);
-            }
+            // NOTE: removed automatic repositioning of the player here so the Area enter/exit
+            // does not toggle repeatedly. Press-to-talk will simply show the prompt.
             // emit signal for UI or controller
             EmitSignal("PlayerInteracted", body);
             // set nearby player and show press-to-talk prompt (do not auto-start dialogue)
