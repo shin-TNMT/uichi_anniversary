@@ -133,6 +133,7 @@ public partial class NPC : Node2D
             {
                 if (Input.IsActionJustPressed("ui_accept"))
                 {
+                    GD.Print($"NPC '{DisplayName}': ui_accept pressed while nearbyPlayer present");
                     // start dialogue and hide prompt
                     HidePrompt();
                     TryStartDialogueForPlayer(nearbyPlayer);
@@ -180,6 +181,7 @@ public partial class NPC : Node2D
             Node dm = null;
             if (GetTree().CurrentScene != null)
                 dm = GetTree().CurrentScene.GetNodeOrNull("DialogManager");
+            GD.Print($"NPC '{DisplayName}': DialogManager lookup in CurrentScene -> {(dm != null ? "found" : "not found")}");
             if (dm == null)
             {
                 Node cursor = this;
@@ -190,16 +192,19 @@ public partial class NPC : Node2D
                     cursor = cursor.GetParent() as Node;
                 }
             }
+            GD.Print($"NPC '{DisplayName}': DialogManager lookup in parents -> {(dm != null ? "found" : "not found")}");
             if (dm != null)
             {
                 var method = dm.GetType().GetMethod("StartDialogue");
+                GD.Print($"NPC '{DisplayName}': StartDialogue method lookup -> {(method != null ? "found" : "NOT FOUND")}");
                 if (method != null)
                 {
                     var pathToUse = DialoguePath;
                     if (string.IsNullOrEmpty(pathToUse) && !string.IsNullOrEmpty(NpcId))
                         pathToUse = $"res://dialogues/{NpcId}.json";
-                    GD.Print($"NPC '{DisplayName}': starting dialogue with resource '{pathToUse}' and id '{NpcId}'");
-                    method.Invoke(dm, new object[] { pathToUse, NpcId });
+                    GD.Print($"NPC '{DisplayName}': invoking StartDialogue with resource '{pathToUse}' and id '{NpcId}'");
+                    var result = method.Invoke(dm, new object[] { pathToUse, NpcId });
+                    GD.Print($"NPC '{DisplayName}': StartDialogue invoke result -> {result}");
                 }
             }
         }
