@@ -29,6 +29,12 @@ public partial class NPC : Node2D
     [Export]
     public string NpcId { get; set; } = "npc_default";
 
+    [Export]
+    public float CollisionScale { get; set; } = 1.2f;
+
+    [Export]
+    public Vector2 MinCollisionExtents { get; set; } = new Vector2(8, 8);
+
     private Sprite2D sprite;
     private Vector2 basePos = Vector2.Zero;
     private double bobTimer = 0.0;
@@ -66,8 +72,10 @@ public partial class NPC : Node2D
                     texSize = new Vector2(32, 32);
                 }
 
-                // extents = half-size
-                var extents = texSize / 2.0f;
+                // extents = half-size, apply scale and minimum
+                var extents = (texSize / 2.0f) * CollisionScale;
+                if (extents.X < MinCollisionExtents.X) extents.X = MinCollisionExtents.X;
+                if (extents.Y < MinCollisionExtents.Y) extents.Y = MinCollisionExtents.Y;
 
                 if (bodyCol != null && bodyCol.Shape != null)
                 {
