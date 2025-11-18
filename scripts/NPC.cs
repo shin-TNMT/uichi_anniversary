@@ -35,6 +35,9 @@ public partial class NPC : Node2D
     [Export]
     public Vector2 MinCollisionExtents { get; set; } = new Vector2(8, 8);
 
+    [Export]
+    public bool AutoStartOnEnter { get; set; } = true;
+
     private Sprite2D sprite;
     private Vector2 basePos = Vector2.Zero;
     private double bobTimer = 0.0;
@@ -154,9 +157,20 @@ public partial class NPC : Node2D
             // does not toggle repeatedly. Press-to-talk will simply show the prompt.
             // emit signal for UI or controller
             EmitSignal("PlayerInteracted", body);
-            // set nearby player and show press-to-talk prompt (do not auto-start dialogue)
+            // set nearby player and show press-to-talk prompt
             nearbyPlayer = cb;
             ShowPrompt();
+            // If configured, auto-start dialogue immediately (useful for debugging)
+            try
+            {
+                if (AutoStartOnEnter)
+                {
+                    GD.Print($"NPC '{DisplayName}': AutoStartOnEnter is true, starting dialogue automatically");
+                    HidePrompt();
+                    TryStartDialogueForPlayer(cb);
+                }
+            }
+            catch { }
         }
     }
 
