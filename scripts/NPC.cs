@@ -218,18 +218,36 @@ public partial class NPC : Node2D
             {
                 promptLayer = new CanvasLayer();
                 promptLayer.Name = "NPCPromptLayer";
+                // panel to hold the label with background
+                var panel = new Panel();
+                panel.Name = "NPC_PromptPanel";
+                // anchor to bottom center (use relative anchors)
+                try
+                {
+                    panel.AnchorLeft = 0.35f;
+                    panel.AnchorRight = 0.65f;
+                    panel.AnchorTop = 0.88f;
+                    panel.AnchorBottom = 0.96f;
+                }
+                catch { }
+
                 var label = new Label();
                 label.Name = "NPC_TalkPrompt";
                 label.Text = "Press Enter to talk";
+                try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
                 try { label.AddThemeColorOverride("font_color", new Color(1,1,1)); } catch { }
-                // basic placement: rely on default position; scene can override via theme/layout
+                // ensure label fills the panel
+                try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
+                panel.AddChild(label);
                 promptLabel = label;
-                promptLayer.AddChild(promptLabel);
+                promptLayer.AddChild(panel);
                 GetTree().Root.AddChild(promptLayer);
             }
             if (promptLabel != null)
             {
                 promptLabel.Visible = true;
+                // ensure parent panel is visible as well
+                try { var p = promptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
             }
         }
         catch { }
