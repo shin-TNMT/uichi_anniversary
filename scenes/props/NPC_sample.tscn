@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://btsy2ir210fvv" path="res://scripts/NPC.cs" id="1"]
 [ext_resource type="Texture2D" uid="uid://dm3y42n0tnxqj" path="res://assets/characters/npc_sample.png" id="2"]
 
-[sub_resource type="CircleShape2D" id="1"]
-radius = 48.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_027mj"]
+size = Vector2(80, 128)
 
 [node name="NPC_sample" type="StaticBody2D"]
 light_mask = 2
@@ -22,7 +22,8 @@ collision_mask = 3
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area"]
 light_mask = 2
 visibility_layer = 3
-shape = SubResource("1")
 
 [node name="BodyCollision" type="CollisionShape2D" parent="."]
-shape = SubResource("1")
+position = Vector2(0, -8)
+shape = CircleShape2D.new()
+shape.radius = 96.0
