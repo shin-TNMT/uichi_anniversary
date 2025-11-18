@@ -36,7 +36,7 @@ public partial class NPC : Node2D
     public Vector2 MinCollisionExtents { get; set; } = new Vector2(8, 8);
 
     [Export]
-    public bool AutoStartOnEnter { get; set; } = true;
+    public bool AutoStartOnEnter { get; set; } = false;
 
     private Sprite2D sprite;
     private Vector2 basePos = Vector2.Zero;
@@ -334,7 +334,33 @@ public partial class NPC : Node2D
     {
         try
         {
-            if (promptLabel != null) promptLabel.Visible = false;
+            if (promptLabel != null)
+            {
+                promptLabel.Visible = false;
+                // also hide parent panel if present
+                try
+                {
+                    var parent = promptLabel.GetParent() as CanvasItem;
+                    if (parent != null) parent.Visible = false;
+                }
+                catch { }
+            }
+
+            if (promptLayer != null)
+            {
+                try
+                {
+                    var p = promptLayer.GetParent();
+                    if (p != null)
+                    {
+                        try { p.RemoveChild(promptLayer); } catch { }
+                    }
+                }
+                catch { }
+                try { promptLayer.QueueFree(); } catch { }
+                promptLayer = null;
+            }
+            promptLabel = null;
         }
         catch { }
     }

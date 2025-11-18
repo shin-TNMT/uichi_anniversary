@@ -17,8 +17,6 @@ tile_map_data = PackedByteArray("AADl/+r/AgABAAAAAADl/+v/AgABAAAAAADl/+z/AgABAAA
 tile_set = ExtResource("2_g5sqg")
 
 [node name="NPC_sample" parent="." instance=ExtResource("3")]
-light_mask = 2
-visibility_layer = 3
 position = Vector2(400, 200)
 DisplayName = "サンプル"
 DialoguePath = "res://dialogues/npc_sample.json"
@@ -36,5 +34,5 @@ NpcId = "npc_sample"
 position = Vector2(-231, -215)
 
 [node name="Player" parent="." instance=ExtResource("2")]
-position = Vector2(629, 357)
+position = Vector2(648, 208)
 collision_mask = 3
