@@ -65,6 +65,17 @@
     3. 将来多言語対応が必要になった場合は、別タスクでキー化や翻訳ファイル管理フローを設計してください。
 
 ``` 
+## 2025-11-18 — 実施者: 自動化エージェント
+  - 要約: NPC のインタラクションを "押して話す" モードに変更しました。近づくと画面にプロンプトを表示し、`ui_accept`（Enter 等）で会話を開始します。プロンプト表示・非表示処理とダイアログ開始ロジックを `scripts/NPC.cs` に実装しました。
+  - 変更ファイル:
+    - `scripts/NPC.cs` (追加: プロンプト用フィールド・ShowPrompt/HidePrompt・TryStartDialogueForPlayer、_Process での入力監視、Area 入退出での nearbyPlayer 管理)
+  - 実行コマンド:
+    - `dotnet build "uichi_anniversary.sln"` (ビルド確認)
+  - 次のアクション:
+    1. Godot エディタで `scenes/Town.tscn` を開き、NPC に近づいてプロンプトが表示されるか確認してください。
+    2. プロンプトが表示された状態で Enter（`ui_accept`）を押し、`DialogManager` が会話を開始することを確認してください。
+    3. プロンプトの位置やスタイル調整が必要なら指示してください（ここで UI の微調整を反映します）。
+
 ## 2025-11-10 — 実施者: 自動化エージェント
   - 要約: Godot エディタ用 TileMap 塗りつぶしスクリプト修正（`tools/fill_tilemap_editor_script.gd`）。
   - 変更ファイル:
