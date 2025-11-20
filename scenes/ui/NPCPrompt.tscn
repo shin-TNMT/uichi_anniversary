@@ -12,9 +12,10 @@ anchor_right = 0.65
 anchor_bottom = 0.96
 
 [node name="NPC_PromptPanel#NPC_TalkPrompt" type="Label" parent="."]
-offset_left = 880.0
-offset_top = 984.0
-offset_right = 1026.0
-offset_bottom = 1007.0
+offset_left = 848.0
+offset_top = 981.0
+offset_right = 1066.0
+offset_bottom = 1015.0
+theme_override_font_sizes/font_size = 24
 text = "話す [Enter / Space]"
 horizontal_alignment = 1
