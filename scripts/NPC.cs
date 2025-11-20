@@ -45,7 +45,7 @@ public partial class NPC : Node2D
     private CanvasLayer promptLayer = null;
     private Label promptLabel = null;
     private CharacterBody2D nearbyPlayer = null;
-    private bool lastF6Pressed = false;
+    
 
     public override void _Ready()
     {
@@ -146,32 +146,7 @@ public partial class NPC : Node2D
             catch { }
         }
 
-        // Debug: press F6 to teleport Player to NPC and force-start dialogue
-        try
-        {
-            bool now = Input.IsKeyPressed(Godot.Key.F6);
-            if (now && !lastF6Pressed)
-            {
-                GD.Print($"NPC '{DisplayName}': F6 pressed - attempting debug teleport and start");
-                var player = FindPlayerNode();
-                if (player != null)
-                {
-                    try
-                    {
-                        player.GlobalPosition = GlobalPosition + new Vector2(0, 16);
-                        GD.Print($"NPC '{DisplayName}': teleported Player to {player.GlobalPosition}");
-                    }
-                    catch { }
-                    TryStartDialogueForPlayer(player);
-                }
-                else
-                {
-                    GD.Print($"NPC '{DisplayName}': debug teleport failed - Player node not found");
-                }
-            }
-            lastF6Pressed = now;
-        }
-        catch { }
+        // No debug teleport in production build
     }
 
     private void OnBodyEntered(Node body)
@@ -286,6 +261,7 @@ public partial class NPC : Node2D
         catch { }
         return null;
     }
+
 
     private void ShowPrompt()
     {
