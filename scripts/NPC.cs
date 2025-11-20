@@ -19,7 +19,7 @@ public partial class NPC : Node2D
     public float BobSpeed { get; set; } = 3.0f;
 
     [Export]
-    public string InteractionText { get; set; } = "Hello!";
+    public string InteractionText { get; set; } = "話す [Enter]";
 
     // Dialogue resource path (e.g. res://dialogues/merchant.json)
     [Export]

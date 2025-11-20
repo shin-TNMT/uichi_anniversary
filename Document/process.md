@@ -117,6 +117,16 @@
     - Godot で `scenes/Town.tscn` を開き、複数 NPC が近接した場合でもプロンプトが重複せず共有 HUD により表示・非表示されることを確認してください。
 
 ## 2025-11-20 — 実施者: 自動化エージェント
+  - 要約: 共通 HUD をシーン化しました。`scenes/ui/NPCPrompt.tscn` を追加し、`DialogManager.ShowNPCPrompt` はこれを優先してロード・インスタンス化するように変更しました。これによりデザイナーが UI をシーンで編集可能になります。既存のプログラム生成コードはフォールバックとして残しています。
+  - 変更ファイル:
+    - `scenes/ui/NPCPrompt.tscn` (追加: CanvasLayer->Panel->Label の共通プロンプトシーン)
+    - `scripts/DialogManager.cs` (変更: PackedScene を優先してロードするロジックを追加)
+  - 実行コマンド:
+    - `dotnet build "uichi_anniversary.sln"` (ビルド確認)
+  - 次のアクション:
+    - Godot エディタで `scenes/ui/NPCPrompt.tscn` を開き、見た目（背景、角丸、ラベル位置）を調整して保存してください。保存後、Town シーンを起動して挙動を確認してください。
+
+## 2025-11-20 — 実施者: 自動化エージェント
   - 要約: 共通プロンプト HUD の文言を短くしました（ユーザ要望）。すべての表示はデフォルトで "話す [Enter]" を使用します。
   - 変更ファイル:
     - `scripts/DialogManager.cs` (default prompt text を `"話す [Enter]"` に変更)

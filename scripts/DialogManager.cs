@@ -94,48 +94,95 @@ public partial class DialogManager : Node
         {
             if (npcPromptLayer == null)
             {
-                npcPromptLayer = new CanvasLayer();
-                npcPromptLayer.Name = "NPCPromptLayer";
-                try { npcPromptLayer.Set("layer", 900); } catch { }
-
-                var panel = new Panel();
-                panel.Name = "NPC_PromptPanel";
+                // Prefer a designer-editable PackedScene if available
                 try
                 {
-                    panel.CustomMinimumSize = new Vector2(320, 56);
-                    panel.AnchorLeft = 0.35f;
-                    panel.AnchorRight = 0.65f;
-                    panel.AnchorTop = 0.88f;
-                    panel.AnchorBottom = 0.96f;
-                }
-                catch { }
-                try
-                {
-                    var sb = new StyleBoxFlat();
-                    sb.BgColor = new Color(0, 0, 0, 0.65f);
-                    sb.CornerRadiusTopLeft = 8;
-                    sb.CornerRadiusTopRight = 8;
-                    sb.CornerRadiusBottomLeft = 8;
-                    sb.CornerRadiusBottomRight = 8;
-                    panel.AddThemeStyleboxOverride("panel", sb);
+                    var packed = GD.Load<PackedScene>("res://scenes/ui/NPCPrompt.tscn");
+                    if (packed != null)
+                    {
+                        var inst = packed.Instantiate();
+                        // If the scene root is a CanvasLayer, use it directly
+                        if (inst is CanvasLayer cl)
+                        {
+                            npcPromptLayer = cl;
+                            // try to find the label inside
+                            try { npcPromptLabel = npcPromptLayer.GetNodeOrNull<Label>("NPC_PromptPanel/NPC_TalkPrompt"); } catch { }
+                            this.AddChild(npcPromptLayer);
+                        }
+                        else
+                        {
+                            // search for CanvasLayer child
+                            CanvasLayer found = null;
+                            foreach (Node c in inst.GetChildren())
+                            {
+                                if (c is CanvasLayer cc)
+                                {
+                                    found = cc;
+                                    break;
+                                }
+                            }
+                            if (found != null)
+                            {
+                                npcPromptLayer = found;
+                                try { npcPromptLabel = npcPromptLayer.GetNodeOrNull<Label>("NPC_PromptPanel/NPC_TalkPrompt"); } catch { }
+                                this.AddChild(npcPromptLayer);
+                            }
+                            else
+                            {
+                                // fallback to programmatic creation below
+                                inst.QueueFree();
+                            }
+                        }
+                    }
                 }
                 catch { }
 
-                var label = new Label();
-                label.Name = "NPC_TalkPrompt";
-                label.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text;
-                try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
-                try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
-                try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
-                try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
-                panel.AddChild(label);
-                npcPromptLabel = label;
-                npcPromptLayer.AddChild(panel);
-                this.AddChild(npcPromptLayer);
+                // If no packed scene was used, fall back to programmatic creation
+                if (npcPromptLayer == null)
+                {
+                    npcPromptLayer = new CanvasLayer();
+                    npcPromptLayer.Name = "NPCPromptLayer";
+                    try { npcPromptLayer.Set("layer", 900); } catch { }
+
+                    var panel = new Panel();
+                    panel.Name = "NPC_PromptPanel";
+                    try
+                    {
+                        panel.CustomMinimumSize = new Vector2(320, 56);
+                        panel.AnchorLeft = 0.35f;
+                        panel.AnchorRight = 0.65f;
+                        panel.AnchorTop = 0.88f;
+                        panel.AnchorBottom = 0.96f;
+                    }
+                    catch { }
+                    try
+                    {
+                        var sb = new StyleBoxFlat();
+                        sb.BgColor = new Color(0, 0, 0, 0.65f);
+                        sb.CornerRadiusTopLeft = 8;
+                        sb.CornerRadiusTopRight = 8;
+                        sb.CornerRadiusBottomLeft = 8;
+                        sb.CornerRadiusBottomRight = 8;
+                        panel.AddThemeStyleboxOverride("panel", sb);
+                    }
+                    catch { }
+
+                    var label = new Label();
+                    label.Name = "NPC_TalkPrompt";
+                    label.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text;
+                    try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
+                    try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
+                    try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
+                    try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
+                    panel.AddChild(label);
+                    npcPromptLabel = label;
+                    npcPromptLayer.AddChild(panel);
+                    this.AddChild(npcPromptLayer);
+                }
             }
             else
             {
-                try { npcPromptLabel.Text = string.IsNullOrEmpty(text) ? "話すには Enter を押してください" : text; } catch { }
+                try { npcPromptLabel.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text; } catch { }
                 try { var p = npcPromptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
                 try { npcPromptLabel.Visible = true; } catch { }
             }
