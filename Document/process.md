@@ -136,6 +136,17 @@
     - 全シーンで `DialogManager` が存在することを確認してください（存在しないシーンがある場合は `DialogManager` か `UI` を追加してください）。
 
 ## 2025-11-20 — 実施者: 自動化エージェント
+  - 要約: 共通プロンプト HUD を Autoload（シングルトン）化しました。`scripts/UI/PromptManager.cs` を追加し、`project.godot` の `[autoload]` に `PromptManager` を登録しています。`DialogManager` はまず `PromptManager`（autoload）を利用し、存在しない場合のみ従来の PackedScene/fallback を使用するよう変更しました。
+  - 変更ファイル:
+    - `scripts/UI/PromptManager.cs` (追加: autoload 用 PromptManager)
+    - `project.godot` (autoload 登録: `PromptManager`)
+    - `scripts/DialogManager.cs` (変更: autoload を優先して使用するよう Show/Hide を更新)
+  - 実行コマンド:
+    - `dotnet build "uichi_anniversary.sln"` (ビルド確認)
+  - 次のアクション:
+    - Godot エディタで `Project Settings -> Autoload` を開き、`PromptManager` が登録されていることを確認してください（`project.godot` を編集しただけでも反映されるはずです）。
+
+## 2025-11-20 — 実施者: 自動化エージェント
   - 要約: 共通プロンプト HUD の文言を短くしました（ユーザ要望）。すべての表示はデフォルトで "話す [Enter]" を使用します。
   - 変更ファイル:
     - `scripts/DialogManager.cs` (default prompt text を `"話す [Enter]"` に変更)

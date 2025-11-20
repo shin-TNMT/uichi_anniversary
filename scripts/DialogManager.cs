@@ -92,52 +92,59 @@ public partial class DialogManager : Node
     {
         try
         {
+            // Prefer the global PromptManager autoload if present
+            try
+            {
+                var pm = GetTree().Root.GetNodeOrNull("PromptManager");
+                if (pm != null)
+                {
+                    var m = pm.GetType().GetMethod("ShowPrompt");
+                    if (m != null)
+                    {
+                        m.Invoke(pm, new object[] { string.IsNullOrEmpty(text) ? "話す [Enter]" : text });
+                        return;
+                    }
+                }
+            }
+            catch { }
+
             if (npcPromptLayer == null)
             {
-                // Prefer a designer-editable PackedScene if available
-                try
+                // fallback to existing PackedScene/programmatic creation (unchanged)
+                var packed = GD.Load<PackedScene>("res://scenes/ui/NPCPrompt.tscn");
+                if (packed != null)
                 {
-                    var packed = GD.Load<PackedScene>("res://scenes/ui/NPCPrompt.tscn");
-                    if (packed != null)
+                    var inst = packed.Instantiate();
+                    if (inst is CanvasLayer cl)
                     {
-                        var inst = packed.Instantiate();
-                        // If the scene root is a CanvasLayer, use it directly
-                        if (inst is CanvasLayer cl)
+                        npcPromptLayer = cl;
+                        try { npcPromptLabel = npcPromptLayer.GetNodeOrNull<Label>("NPC_PromptPanel/NPC_TalkPrompt"); } catch { }
+                        this.AddChild(npcPromptLayer);
+                    }
+                    else
+                    {
+                        CanvasLayer found = null;
+                        foreach (Node c in inst.GetChildren())
                         {
-                            npcPromptLayer = cl;
-                            // try to find the label inside
+                            if (c is CanvasLayer cc)
+                            {
+                                found = cc;
+                                break;
+                            }
+                        }
+                        if (found != null)
+                        {
+                            npcPromptLayer = found;
                             try { npcPromptLabel = npcPromptLayer.GetNodeOrNull<Label>("NPC_PromptPanel/NPC_TalkPrompt"); } catch { }
                             this.AddChild(npcPromptLayer);
                         }
                         else
                         {
-                            // search for CanvasLayer child
-                            CanvasLayer found = null;
-                            foreach (Node c in inst.GetChildren())
-                            {
-                                if (c is CanvasLayer cc)
-                                {
-                                    found = cc;
-                                    break;
-                                }
-                            }
-                            if (found != null)
-                            {
-                                npcPromptLayer = found;
-                                try { npcPromptLabel = npcPromptLayer.GetNodeOrNull<Label>("NPC_PromptPanel/NPC_TalkPrompt"); } catch { }
-                                this.AddChild(npcPromptLayer);
-                            }
-                            else
-                            {
-                                // fallback to programmatic creation below
-                                inst.QueueFree();
-                            }
+                            inst.QueueFree();
                         }
                     }
                 }
-                catch { }
 
-                // If no packed scene was used, fall back to programmatic creation
                 if (npcPromptLayer == null)
                 {
                     npcPromptLayer = new CanvasLayer();
@@ -180,12 +187,10 @@ public partial class DialogManager : Node
                     this.AddChild(npcPromptLayer);
                 }
             }
-            else
-            {
-                try { npcPromptLabel.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text; } catch { }
-                try { var p = npcPromptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
-                try { npcPromptLabel.Visible = true; } catch { }
-            }
+
+            try { npcPromptLabel.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text; } catch { }
+            try { var p = npcPromptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
+            try { npcPromptLabel.Visible = true; } catch { }
         }
         catch { }
     }
@@ -194,6 +199,18 @@ public partial class DialogManager : Node
     {
         try
         {
+            // prefer autoload PromptManager if present
+            try
+            {
+                var pm = GetTree().Root.GetNodeOrNull("PromptManager");
+                if (pm != null)
+                {
+                    var m = pm.GetType().GetMethod("HidePrompt");
+                    if (m != null) { m.Invoke(pm, null); return; }
+                }
+            }
+            catch { }
+
             if (npcPromptLabel != null) npcPromptLabel.Visible = false;
             if (npcPromptLayer != null)
             {

@@ -24,3 +24,6 @@ window/size/viewport_height=1080
 [dotnet]
 
 project/assembly_name="uichi_anniversary"
+
+[autoload]
+PromptManager="res://scripts/UI/PromptManager.cs"
