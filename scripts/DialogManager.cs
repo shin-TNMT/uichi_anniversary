@@ -123,7 +123,7 @@ public partial class DialogManager : Node
 
                 var label = new Label();
                 label.Name = "NPC_TalkPrompt";
-                label.Text = string.IsNullOrEmpty(text) ? "話すには Enter を押してください" : text;
+                label.Text = string.IsNullOrEmpty(text) ? "話す [Enter]" : text;
                 try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
                 try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
                 try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }

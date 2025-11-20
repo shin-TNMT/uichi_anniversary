@@ -360,7 +360,7 @@ public partial class NPC : Node2D
 
                 var label = new Label();
                 label.Name = "NPC_TalkPrompt";
-                label.Text = "話すには Enter を押してください";
+                label.Text = "話す [Enter]";
                 try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
                 try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
                 try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
