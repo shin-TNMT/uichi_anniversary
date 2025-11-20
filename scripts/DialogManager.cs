@@ -22,6 +22,9 @@ public partial class DialogManager : Node
     private string currentNpcId = null;
     private Godot.Collections.Dictionary currentNodeMap = null; // id -> node dict
     private string currentNodeId = null;
+    // Shared NPC prompt HUD
+    private CanvasLayer npcPromptLayer = null;
+    private Label npcPromptLabel = null;
     // track which Button instance IDs we've connected to avoid duplicate connect attempts
     // Use ulong to match Godot's GetInstanceId() return type on recent C# bindings
     private HashSet<ulong> connectedButtonIds = new HashSet<ulong>();
@@ -82,6 +85,78 @@ public partial class DialogManager : Node
             var ok = StartDialogue(ForceStartResource, ForceStartNpcId);
             GD.Print("DialogManager: ForceStartForDebug StartDialogue returned: ", ok);
         }
+    }
+
+    // Show a shared NPC prompt at bottom-center. Text may be null to use default.
+    public void ShowNPCPrompt(string text)
+    {
+        try
+        {
+            if (npcPromptLayer == null)
+            {
+                npcPromptLayer = new CanvasLayer();
+                npcPromptLayer.Name = "NPCPromptLayer";
+                try { npcPromptLayer.Set("layer", 900); } catch { }
+
+                var panel = new Panel();
+                panel.Name = "NPC_PromptPanel";
+                try
+                {
+                    panel.CustomMinimumSize = new Vector2(320, 56);
+                    panel.AnchorLeft = 0.35f;
+                    panel.AnchorRight = 0.65f;
+                    panel.AnchorTop = 0.88f;
+                    panel.AnchorBottom = 0.96f;
+                }
+                catch { }
+                try
+                {
+                    var sb = new StyleBoxFlat();
+                    sb.BgColor = new Color(0, 0, 0, 0.65f);
+                    sb.CornerRadiusTopLeft = 8;
+                    sb.CornerRadiusTopRight = 8;
+                    sb.CornerRadiusBottomLeft = 8;
+                    sb.CornerRadiusBottomRight = 8;
+                    panel.AddThemeStyleboxOverride("panel", sb);
+                }
+                catch { }
+
+                var label = new Label();
+                label.Name = "NPC_TalkPrompt";
+                label.Text = string.IsNullOrEmpty(text) ? "話すには Enter を押してください" : text;
+                try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
+                try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
+                try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
+                try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
+                panel.AddChild(label);
+                npcPromptLabel = label;
+                npcPromptLayer.AddChild(panel);
+                this.AddChild(npcPromptLayer);
+            }
+            else
+            {
+                try { npcPromptLabel.Text = string.IsNullOrEmpty(text) ? "話すには Enter を押してください" : text; } catch { }
+                try { var p = npcPromptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
+                try { npcPromptLabel.Visible = true; } catch { }
+            }
+        }
+        catch { }
+    }
+
+    public void HideNPCPrompt()
+    {
+        try
+        {
+            if (npcPromptLabel != null) npcPromptLabel.Visible = false;
+            if (npcPromptLayer != null)
+            {
+                try { var p = npcPromptLayer.GetParent(); if (p != null) p.RemoveChild(npcPromptLayer); } catch { }
+                try { npcPromptLayer.QueueFree(); } catch { }
+                npcPromptLayer = null;
+            }
+            npcPromptLabel = null;
+        }
+        catch { }
     }
 
     // Ensure a node and its children keep processing while the SceneTree is paused

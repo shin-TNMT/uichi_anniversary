@@ -139,7 +139,7 @@ public partial class NPC : Node2D
                 {
                     GD.Print($"NPC '{DisplayName}': ui_accept pressed while nearbyPlayer present");
                     // start dialogue and hide prompt
-                    HidePrompt();
+                    HidePromptShared();
                     TryStartDialogueForPlayer(nearbyPlayer);
                 }
             }
@@ -160,9 +160,9 @@ public partial class NPC : Node2D
             // does not toggle repeatedly. Press-to-talk will simply show the prompt.
             // emit signal for UI or controller
             EmitSignal("PlayerInteracted", body);
-            // set nearby player and show press-to-talk prompt
+            // set nearby player and show press-to-talk prompt (shared HUD)
             nearbyPlayer = cb;
-            ShowPrompt();
+            ShowPromptShared();
             // If configured, auto-start dialogue immediately (useful for debugging)
             try
             {
@@ -182,11 +182,11 @@ public partial class NPC : Node2D
         if (body is CharacterBody2D cb)
         {
             GD.Print($"NPC '{DisplayName}': Player left: {body.Name}");
-            if (nearbyPlayer == cb)
-            {
-                nearbyPlayer = null;
-                HidePrompt();
-            }
+                if (nearbyPlayer == cb)
+                {
+                    nearbyPlayer = null;
+                    HidePromptShared();
+                }
             EmitSignal("PlayerLeft", body);
         }
     }
@@ -260,6 +260,67 @@ public partial class NPC : Node2D
         }
         catch { }
         return null;
+    }
+
+    private Node FindDialogManagerNode()
+    {
+        try
+        {
+            Node dm = null;
+            if (GetTree().CurrentScene != null)
+                dm = GetTree().CurrentScene.GetNodeOrNull("DialogManager");
+            if (dm == null)
+            {
+                Node cursor = this;
+                while (cursor != null)
+                {
+                    dm = cursor.GetNodeOrNull("DialogManager");
+                    if (dm != null) break;
+                    cursor = cursor.GetParent() as Node;
+                }
+            }
+            return dm;
+        }
+        catch { return null; }
+    }
+
+    private void ShowPromptShared()
+    {
+        try
+        {
+            var dm = FindDialogManagerNode();
+            if (dm != null)
+            {
+                var method = dm.GetType().GetMethod("ShowNPCPrompt");
+                if (method != null)
+                {
+                    method.Invoke(dm, new object[] { InteractionText });
+                    return;
+                }
+            }
+        }
+        catch { }
+        // fallback to local prompt if no DialogManager present
+        ShowPrompt();
+    }
+
+    private void HidePromptShared()
+    {
+        try
+        {
+            var dm = FindDialogManagerNode();
+            if (dm != null)
+            {
+                var method = dm.GetType().GetMethod("HideNPCPrompt");
+                if (method != null)
+                {
+                    method.Invoke(dm, null);
+                    return;
+                }
+            }
+        }
+        catch { }
+        HidePrompt();
     }
 
 

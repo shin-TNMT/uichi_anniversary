@@ -106,6 +106,16 @@
     - Godot で `scenes/Town.tscn` を開き、NPC に近づいてプロンプトが期待どおりに表示されるか確認してください（文言・背景・サイズ）。
     - 見た目調整（色、透明度、フォントサイズ、位置）やコピー修正の希望を教えてください。共通 HUD へリファクタする場合は、次フェーズで実装します。
 
+## 2025-11-20 — 実施者: 自動化エージェント
+  - 要約: 共通プロンプト HUD の実装を追加しました。`DialogManager` に `ShowNPCPrompt(string)` と `HideNPCPrompt()` を追加し、各 `NPC` はこれを呼んでプロンプト表示・非表示を行うように変更しました。存在しない場合は従来のローカルプロンプト表示にフォールバックします。
+  - 変更ファイル:
+    - `scripts/DialogManager.cs` (追加: `ShowNPCPrompt` / `HideNPCPrompt` 共通 HUD 実装)
+    - `scripts/NPC.cs` (`ShowPrompt()` / `HidePrompt()` 呼び出しを共有 HUD 呼出しへ変更、DM が無い場合はフォールバック)
+  - 実行コマンド:
+    - `dotnet build "uichi_anniversary.sln"` (ビルド確認)
+  - 次のアクション:
+    - Godot で `scenes/Town.tscn` を開き、複数 NPC が近接した場合でもプロンプトが重複せず共有 HUD により表示・非表示されることを確認してください。
+
 ## 2025-11-18 — 実施者: 自動化エージェント
   - 要約: デバッグ用に一時的に有効にしていた `AutoStartOnEnter` をデフォルト `false` に戻しました（近づいただけで会話が自動開始しない設定に戻す）。ビルド検証を実行しました。
   - 変更ファイル:
