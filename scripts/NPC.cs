@@ -271,12 +271,12 @@ public partial class NPC : Node2D
             {
                 promptLayer = new CanvasLayer();
                 promptLayer.Name = "NPCPromptLayer";
-                // panel to hold the label with background
                 var panel = new Panel();
                 panel.Name = "NPC_PromptPanel";
-                // anchor to bottom center (use relative anchors)
+                // size and anchoring: bottom-center
                 try
                 {
+                    panel.CustomMinimumSize = new Vector2(320, 56);
                     panel.AnchorLeft = 0.35f;
                     panel.AnchorRight = 0.65f;
                     panel.AnchorTop = 0.88f;
@@ -284,12 +284,25 @@ public partial class NPC : Node2D
                 }
                 catch { }
 
+                // nice dark translucent background with rounded corners
+                try
+                {
+                    var sb = new StyleBoxFlat();
+                    sb.BgColor = new Color(0, 0, 0, 0.65f);
+                    sb.CornerRadiusTopLeft = 8;
+                    sb.CornerRadiusTopRight = 8;
+                    sb.CornerRadiusBottomLeft = 8;
+                    sb.CornerRadiusBottomRight = 8;
+                    panel.AddThemeStyleboxOverride("panel", sb);
+                }
+                catch { }
+
                 var label = new Label();
                 label.Name = "NPC_TalkPrompt";
-                label.Text = "Press Enter to talk";
+                label.Text = "話すには Enter を押してください";
                 try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
-                try { label.AddThemeColorOverride("font_color", new Color(1,1,1)); } catch { }
-                // ensure label fills the panel
+                try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
+                try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
                 try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
                 panel.AddChild(label);
                 promptLabel = label;
