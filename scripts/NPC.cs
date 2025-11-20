@@ -41,9 +41,7 @@ public partial class NPC : Node2D
     private Sprite2D sprite;
     private Vector2 basePos = Vector2.Zero;
     private double bobTimer = 0.0;
-    // interaction prompt/UI
-    private CanvasLayer promptLayer = null;
-    private Label promptLabel = null;
+    // interaction prompt/UI (shared HUD is used; local fallback removed)
     private CharacterBody2D nearbyPlayer = null;
     
 
@@ -169,7 +167,7 @@ public partial class NPC : Node2D
                 if (AutoStartOnEnter)
                 {
                     GD.Print($"NPC '{DisplayName}': AutoStartOnEnter is true, starting dialogue automatically");
-                    HidePrompt();
+                    HidePromptShared();
                     TryStartDialogueForPlayer(cb);
                 }
             }
@@ -232,36 +230,6 @@ public partial class NPC : Node2D
         GD.Print($"NPC '{DisplayName}' says: {InteractionText}");
     }
 
-    private CharacterBody2D FindPlayerNode()
-    {
-        // Try current scene first
-        try
-        {
-            var cs = GetTree().CurrentScene;
-            if (cs != null)
-            {
-                var p = cs.GetNodeOrNull<CharacterBody2D>("Player");
-                if (p != null) return p;
-            }
-        }
-        catch { }
-        // Fallback: recursive search from root
-        try
-        {
-            var root = GetTree().Root;
-            var queue = new System.Collections.Generic.Queue<Node>();
-            queue.Enqueue(root);
-            while (queue.Count > 0)
-            {
-                var n = queue.Dequeue();
-                if (n is CharacterBody2D cb && n.Name == "Player") return cb;
-                foreach (Node child in n.GetChildren()) queue.Enqueue(child);
-            }
-        }
-        catch { }
-        return null;
-    }
-
     private Node FindDialogManagerNode()
     {
         try
@@ -300,8 +268,7 @@ public partial class NPC : Node2D
             }
         }
         catch { }
-        // fallback to local prompt if no DialogManager present
-        ShowPrompt();
+        // no local fallback: rely on DialogManager/scene to provide prompt
     }
 
     private void HidePromptShared()
@@ -320,99 +287,7 @@ public partial class NPC : Node2D
             }
         }
         catch { }
-        HidePrompt();
-    }
-
-
-    private void ShowPrompt()
-    {
-        try
-        {
-            if (promptLayer == null)
-            {
-                promptLayer = new CanvasLayer();
-                promptLayer.Name = "NPCPromptLayer";
-                var panel = new Panel();
-                panel.Name = "NPC_PromptPanel";
-                // size and anchoring: bottom-center
-                try
-                {
-                    panel.CustomMinimumSize = new Vector2(320, 56);
-                    panel.AnchorLeft = 0.35f;
-                    panel.AnchorRight = 0.65f;
-                    panel.AnchorTop = 0.88f;
-                    panel.AnchorBottom = 0.96f;
-                }
-                catch { }
-
-                // nice dark translucent background with rounded corners
-                try
-                {
-                    var sb = new StyleBoxFlat();
-                    sb.BgColor = new Color(0, 0, 0, 0.65f);
-                    sb.CornerRadiusTopLeft = 8;
-                    sb.CornerRadiusTopRight = 8;
-                    sb.CornerRadiusBottomLeft = 8;
-                    sb.CornerRadiusBottomRight = 8;
-                    panel.AddThemeStyleboxOverride("panel", sb);
-                }
-                catch { }
-
-                var label = new Label();
-                label.Name = "NPC_TalkPrompt";
-                label.Text = "話す [Enter]";
-                try { label.HorizontalAlignment = HorizontalAlignment.Center; } catch { }
-                try { label.AddThemeColorOverride("font_color", new Color(1, 1, 1)); } catch { }
-                try { label.AddThemeFontSizeOverride("font_size", 18); } catch { }
-                try { label.AnchorLeft = 0.0f; label.AnchorTop = 0.0f; label.AnchorRight = 1.0f; label.AnchorBottom = 1.0f; } catch { }
-                panel.AddChild(label);
-                promptLabel = label;
-                promptLayer.AddChild(panel);
-                GetTree().Root.AddChild(promptLayer);
-            }
-            if (promptLabel != null)
-            {
-                promptLabel.Visible = true;
-                // ensure parent panel is visible as well
-                try { var p = promptLabel.GetParent() as CanvasItem; if (p != null) p.Visible = true; } catch { }
-            }
-        }
-        catch { }
-    }
-
-    private void HidePrompt()
-    {
-        try
-        {
-            if (promptLabel != null)
-            {
-                promptLabel.Visible = false;
-                // also hide parent panel if present
-                try
-                {
-                    var parent = promptLabel.GetParent() as CanvasItem;
-                    if (parent != null) parent.Visible = false;
-                }
-                catch { }
-            }
-
-            if (promptLayer != null)
-            {
-                try
-                {
-                    var p = promptLayer.GetParent();
-                    if (p != null)
-                    {
-                        try { p.RemoveChild(promptLayer); } catch { }
-                    }
-                }
-                catch { }
-                try { promptLayer.QueueFree(); } catch { }
-                promptLayer = null;
-            }
-            promptLabel = null;
-        }
-        catch { }
+        // no local fallback: rely on DialogManager/scene to hide prompt
     }
 
     private void FaceTowards(Vector2 targetGlobalPos)

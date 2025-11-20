@@ -1,16 +1,20 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://wqofvgp5i51m"]
 
 [node name="NPCPromptLayer" type="CanvasLayer"]
 layer = 900
 
-[node name="NPC_PromptPanel" type="Panel" parent="NPCPromptLayer"]
+[node name="NPCPromptLayer#NPC_PromptPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(320, 56)
+anchors_preset = -1
 anchor_left = 0.35
-anchor_right = 0.65
 anchor_top = 0.88
+anchor_right = 0.65
 anchor_bottom = 0.96
 
-[node name="NPC_TalkPrompt" type="Label" parent="NPC_PromptPanel"]
-text = "話す [Enter]"
+[node name="NPC_PromptPanel#NPC_TalkPrompt" type="Label" parent="."]
+offset_left = 880.0
+offset_top = 984.0
+offset_right = 1026.0
+offset_bottom = 1007.0
+text = "話す [Enter / Space]"
 horizontal_alignment = 1
-

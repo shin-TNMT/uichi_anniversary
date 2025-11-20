@@ -127,6 +127,15 @@
     - Godot エディタで `scenes/ui/NPCPrompt.tscn` を開き、見た目（背景、角丸、ラベル位置）を調整して保存してください。保存後、Town シーンを起動して挙動を確認してください。
 
 ## 2025-11-20 — 実施者: 自動化エージェント
+  - 要約: ローカルプロンプト生成コードを `scripts/NPC.cs` から削除してクリーンアップしました。各 NPC は `DialogManager` の共通 HUD (`scenes/ui/NPCPrompt.tscn`) を利用します。フォールバックは削除済みのため、`DialogManager` が存在しないシーンではプロンプトが表示されません（意図的）。
+  - 変更ファイル:
+    - `scripts/NPC.cs` (削除: `promptLayer`/`promptLabel` フィールド、`ShowPrompt`/`HidePrompt` 等のローカルプロンプトロジック)
+  - 実行コマンド:
+    - `dotnet build "uichi_anniversary.sln"` (ビルド確認)
+  - 次のアクション:
+    - 全シーンで `DialogManager` が存在することを確認してください（存在しないシーンがある場合は `DialogManager` か `UI` を追加してください）。
+
+## 2025-11-20 — 実施者: 自動化エージェント
   - 要約: 共通プロンプト HUD の文言を短くしました（ユーザ要望）。すべての表示はデフォルトで "話す [Enter]" を使用します。
   - 変更ファイル:
     - `scripts/DialogManager.cs` (default prompt text を `"話す [Enter]"` に変更)
