@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=4 uid="uid://dewbg0klwgyk0"]
+[gd_scene load_steps=6 format=4 uid="uid://dewbg0klwgyk0"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="2"]
 [ext_resource type="TileSet" uid="uid://fosfgvftm50r" path="res://scenes/tiles/TownTiles.tres" id="2_g5sqg"]
 [ext_resource type="PackedScene" uid="uid://dymcch8gbq6sx" path="res://scenes/props/NPC_sample.tscn" id="3"]
 [ext_resource type="Script" uid="uid://4edvdf0wkdiq" path="res://scripts/DialogManager.cs" id="4"]
+[ext_resource type="PackedScene" uid="uid://b1a57glpv6u7o" path="res://scenes/props/NPC_taro_chan.tscn" id="5_gry36"]
 
 [node name="Town" type="Node2D"]
 
@@ -21,6 +22,10 @@ position = Vector2(400, 200)
 DisplayName = "サンプル"
 DialoguePath = "res://dialogues/npc_sample.json"
 NpcId = "npc_sample"
+
+[node name="NPC_taro_chan" parent="." instance=ExtResource("5_gry36")]
+position = Vector2(384, -232)
+BobAmplitude = 0.0
 
 [node name="Objects" type="Node2D" parent="."]
 

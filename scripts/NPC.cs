@@ -133,9 +133,20 @@ public partial class NPC : Node2D
         {
             try
             {
-                if (Input.IsActionJustPressed("ui_accept"))
+                bool pressed = false;
+                // prefer ui_accept (exists in default project settings)
+                try { if (Input.IsActionJustPressed("ui_accept")) pressed = true; } catch { }
+                // only check 'interact' if the action exists to avoid engine error logs
+                try
                 {
-                    GD.Print($"NPC '{DisplayName}': ui_accept pressed while nearbyPlayer present");
+                    if (!pressed && InputMap.HasAction("interact") && Input.IsActionJustPressed("interact"))
+                        pressed = true;
+                }
+                catch { }
+
+                if (pressed)
+                {
+                    GD.Print($"NPC '{DisplayName}': interact pressed while nearbyPlayer present");
                     // start dialogue and hide prompt
                     HidePromptShared();
                     TryStartDialogueForPlayer(nearbyPlayer);
@@ -217,6 +228,12 @@ public partial class NPC : Node2D
                     var pathToUse = DialoguePath;
                     if (string.IsNullOrEmpty(pathToUse) && !string.IsNullOrEmpty(NpcId))
                         pathToUse = $"res://dialogues/{NpcId}.json";
+                    // Defensive check: avoid invoking StartDialogue with an empty resource path
+                    if (string.IsNullOrEmpty(pathToUse))
+                    {
+                        GD.PrintErr($"NPC '{DisplayName}': dialogue resource path is empty; skipping StartDialogue (NpcId='{NpcId}', DialoguePath='{DialoguePath}')");
+                        return;
+                    }
                     GD.Print($"NPC '{DisplayName}': invoking StartDialogue with resource '{pathToUse}' and id '{NpcId}'");
                     var result = method.Invoke(dm, new object[] { pathToUse, NpcId });
                     GD.Print($"NPC '{DisplayName}': StartDialogue invoke result -> {result}");

@@ -65,6 +65,21 @@
     3. 将来多言語対応が必要になった場合は、別タスクでキー化や翻訳ファイル管理フローを設計してください。
 
 ``` 
+
+## 2025-11-25 — 実施者: 自動化エージェント
+  - 要約: 新しい NPC `taro_chan` のシーンとダイアログを追加しました。画像ファイルは `assets/characters/taro_chan/` に配置される想定です（まだ画像が無い場合はプレースホルダの `.import` を追加しました）。
+  - 変更ファイル:
+    - `scenes/props/NPC_taro_chan.tscn` (追加)
+    - `dialogues/taro_chan.json` (追加)
+    - `assets/characters/taro_chan/taro_chan.png.import` (追加: プレースホルダ)
+    - `assets/characters/taro_chan/taro_chan_standing_picture.png.import` (追加: プレースホルダ)
+    - `assets/items/taro_chan_marterial.png.import` (追加: プレースホルダ)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln` (ビルド確認: 実行済み)
+  - 次のアクション:
+    1. 実際の画像ファイル（`taro_chan.png`, `taro_chan_standing_picture.png`, `taro_chan_marterial.png`）を該当パスに配置してください。Godot は起動時に `.import` を再生成します。
+    2. Godot エディタで `scenes/props/NPC_taro_chan.tscn` を開き、Sprite と立ち絵が正しく読み込まれることを確認してください。
+    3. `dialogues/taro_chan.json` を必要に応じて文言修正してください。
 ## 2025-11-18 — 実施者: 自動化エージェント
   - 要約: NPC のインタラクションを "押して話す" モードに変更しました。近づくと画面にプロンプトを表示し、`ui_accept`（Enter 等）で会話を開始します。プロンプト表示・非表示処理とダイアログ開始ロジックを `scripts/NPC.cs` に実装しました。
   - 変更ファイル:
@@ -267,6 +282,27 @@
 
   - `.gitignore` (更新)
   - `tests/uichi_anniversary_tests/UnitTest1.cs` (追加)
+## 2025-11-26 — 実施者: 自動化エージェント
+  - 要約: `taro_chan_material` のインベントリ用メタデータを `InventoryManager` に追加しました（表示名とアイコンパスの登録）。
+  - 変更ファイル:
+    - `scripts/UI/InventoryManager.cs` (追加: `itemMetadata["taro_chan_material"] = { displayName: "たろちゃんの素材", icon: "res://assets/items/taro_chan_mrterial.png" }` の登録)
+  - 実行コマンド:
+    - `dotnet build "c:\Users\owner\Documents\codes\uichi_anniversary\uichi_anniversary.sln"` (ビルド確認: 成功)
+  - 次のアクション:
+    1. Godot エディタで `scenes/Town.tscn` を起動し、`NPC_taro_chan` と会話してアイテムを受け取り、`I` キーでインベントリを開いてアイコンが表示されることを確認してください。
+    2. アイコンが表示されない場合は、実際の PNG を `res://assets/items/taro_chan_mrterial.png` に配置してください（ファイル名の綴りに注意）。
+
+## 2025-11-26 — 実施者: 自動化エージェント
+  - 要約: アイテム定義を集中管理する `assets/items/items.json` を追加し、`InventoryManager` を JSON からメタデータを読み込むように変更しました。これによりアイテムの表示名やアイコンパスをコードではなく JSON で管理できます。
+  - 変更ファイル:
+    - `assets/items/items.json` (追加: item 定義の JSON)
+    - `scripts/UI/InventoryManager.cs` (変更: `items.json` を読み込み `itemMetadata` を初期化する処理を追加、フォールバック保持)
+  - 実行コマンド:
+    - `dotnet build "c:\Users\owner\Documents\codes\uichi_anniversary\uichi_anniversary.sln"` (ビルド確認: 成功)
+  - 次のアクション:
+    1. `assets/items/items.json` を必要に応じて編集して新しいアイテムを追加してください（id, displayName, icon のフィールド）。
+    2. Godot でアイコンが表示されない場合は、`res://assets/items/` に実際の PNG を配置して再度確認してください。
+
   - `dotnet --version` (環境確認)
   - Godot エディタで C# ソリューション生成（エディタ操作）
   - `dotnet build uichi_anniversary.sln` (ビルド確認)
@@ -336,6 +372,68 @@
   1. Godot エディタで `project.godot` を開き、Main Scene が `res://scenes/StartScreen.tscn` に設定されていることを確認
   2. エディタからプロジェクトを実行し、Options ダイアログでスライダー操作が Master バスの音量に反映されることを確認
   3. 動作OKなら変更をコミット（コミットメッセージ例: "feat: add StartScreen + options (volume) and set as main scene")
+
+## 2025-11-22 — 実施者: 自動化エージェント
+  - 要約: インベントリ表示機能を実装しました。`I` キーで表示/非表示を切り替え、`GameState` の在庫を読み取って一覧表示します。オートロード `InventoryManager` を追加しました。
+  - 変更ファイル:
+    - `scripts/GameState.cs` (追加: `GetInventoryCopy()` を実装して UI 用の在庫コピーを返す)
+    - `scenes/ui/InventoryPanel.tscn` (追加: インベントリ表示用のシンプル UI)
+    - `scripts/UI/InventoryManager.cs` (追加: `I` キーでトグル、在庫を描画、`ItemAdded` シグナルで更新)
+    - `project.godot` (autoload 登録: `InventoryManager` を追加)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln` (ビルド確認を推奨)
+  - 次のアクション:
+    1. Godot エディタでプロジェクトを開き、Town などのシーンを実行して `I` を押し、インベントリパネルが表示されることを確認してください。
+    2. アイテム取得（会話内の `give_item` 等）を行い、パネルを表示した状態で在庫が更新されることを確認してください。
+    3. 表示文言やアイテム名・アイコンを改善したい場合は、アイテムメタデータ（名前／アイコンを紐づける辞書）を追加する案を提案できます。
+
+## 2025-11-22 — 実施者: 自動化エージェント
+  - 要約: NPC ごとの一回限り付与をサポートするため、`GameState` に NPC 固有の付与記録を追加し、`DialogManager` の `give_item` 実行ロジックを変更しました。これにより同一 NPC が同じアイテムを複数回渡すことを防ぎます。
+  - 変更ファイル:
+    - `scripts/GameState.cs` (追加: `HasNpcGiven(string npcId, string itemId)` / `MarkNpcGiven(string npcId, string itemId)` と内部 `npcGiven` データ構造)
+    - `scripts/DialogManager.cs` (変更: `give_item` 処理を NPC 固有フラグ参照に切替。付与時に `MarkNpcGiven` を呼び出す)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln` (ビルド確認済)
+  - 次のアクション:
+    1. Godot エディタで `scenes/Town.tscn` を実行し、`npc_sample` に話しかけてアイテム取得を確認してください。
+    2. 同じ NPC に再度話しかけて同じ選択（`give`）を選ぶと、`give_already` ノードや `DialogManager` のログが出て付与がスキップされることを確認してください。
+
+
+## 2025-11-22 — 実施者: 自動化エージェント
+  - 要約: Godot 上で `npc_sample` の会話フローを実機確認しました。1 回目は `give` によりアイテム `material_sample` を付与、2 回目は `give_already` ノードから開始され、重複付与が発生しないことを確認しました。
+  - 変更ファイル:
+    - `scripts/DialogManager.cs` (修正: StartDialogue の先読み判定で `npcId` を参照するようにし、`next_if_given` / `speaker_image` のパースを追加)
+    - `scripts/GameState.cs` (追加: NPC ごとの付与記録 `HasNpcGiven` / `MarkNpcGiven`)
+    - `dialogues/npc_sample.json` (追加/変更: `next_if_given` と `give_already` ノードを追加)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln`
+  - 実行ログ（抜粋）:
+    - `StartDialogue: NPC npc_sample already gave material_sample, starting at give_already`
+    - `ShowCurrentNode: currentNodeId=give_already ... ShowCurrentNode: body set=お前はもう受け取っただろう…`
+    - `GameState: AddItem material_sample -> 1` (1 回目付与時)
+  - 次のアクション:
+    1. 必要であれば `npcGiven` 情報をセーブ/ロードして永続化する（要望があれば実装します）。
+    2. `InputMap` に `inventory`/`interact` 等のアクションを登録し、ハードコードされたキーを置き換える（推奨）。
+  - 追記: 2025-11-22 — `InputMap` 化を実施しました。`scripts/UI/InventoryManager.cs` のインベントリ表示トグルをハードコードされた `I` キーから `Input.IsActionJustPressed("inventory")` に変更しました。また `scripts/NPC.cs` は `ui_accept` に加えて `interact` アクションへ対応しました。Godot の `Project Settings -> Input Map` で `inventory` と `interact` を登録してください（`inventory` に `I` を、`interact` に `Enter`/`Space` を割り当てるのが推奨設定です）。
+
+## 2025-11-22 — 実施者: 自動化エージェント
+  - 要約: インベントリの冗長更新を抑えるため、`InventoryManager.RefreshInventory()` に再入防止フラグを追加しました。これにより `ItemAdded` シグナル等で短時間に複数回 Refresh が呼ばれても二重更新を防止します。
+  - 変更ファイル:
+    - `scripts/UI/InventoryManager.cs` (追加: `isRefreshing` フラグ・Refresh の先頭でガード、finally でフラグ解除)
+  - 実行コマンド:
+    - `dotnet build uichi_anniversary.sln`
+  - 次のアクション:
+    1. Godot を起動して通常通りアイテム取得→インベントリ更新の挙動を確認してください。ログ出力の重複が削減されるはずです。
+  - 追記: 2025-11-22 — インベントリ UI をアイコン化しました。
+    - 変更ファイル:
+      - `scenes/ui/InventoryItemEntry.tscn` (新規: アイコン付きアイテム行テンプレート)
+      - `scenes/ui/InventoryPanel.tscn` (更新: `ItemList` を `ScrollContainer` 内に配置してスクロール対応)
+      - `scripts/UI/InventoryManager.cs` (更新: アイテム行を PackedScene で生成し、簡易メタデータを元に表示名とアイコンを設定する)
+    - 実行コマンド:
+      - `dotnet build uichi_anniversary.sln`
+    - 注意事項:
+      - アイコンファイルは `res://assets/items/` 下のパスを期待しています。サンプルとして `material_sample` のアイコンパス `res://assets/items/material_sample.png` をメタデータに設定しましたが、実際の画像アセットはプロジェクトに追加してください。アイコンが無い場合はテキスト表示でフォールバックします。
+
 
 
 ## 2025-11-13 — 実施者: 自動化エージェント

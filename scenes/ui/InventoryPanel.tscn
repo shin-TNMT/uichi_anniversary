@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://dql4rkolhiq2r"]
+
+[node name="InventoryLayer" type="CanvasLayer"]
+layer = 910
+
+[node name="InventoryLayer#InventoryPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(360, 480)
+offset_right = 1920.0
+offset_bottom = 1080.0
+
+[node name="InventoryPanel#Scroll" type="ScrollContainer" parent="InventoryLayer#InventoryPanel"]
+layout_mode = 0
+
+[node name="InventoryLayer#InventoryPanel#Scroll#InventoryPanel#ItemList" type="VBoxContainer" parent="."]

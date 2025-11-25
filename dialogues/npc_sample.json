@@ -2,9 +2,10 @@
   "start": "greet",
   "start_seen": "greet_seen",
   "nodes": [
-    { "id": "greet", "type": "line", "speaker": "ういちのだち", "speaker_image": "res://assets/characters/npc_sample_standing_picture.png", "text": "我ら！ウマ四天王！", "next": "ask" },
-    { "id": "ask", "type": "choice", "choices": [ { "text": "お、おう...", "next": "give" }, { "text": "とりあえずぶっ飛ばす！", "next": "end" } ] },
-    { "id": "give", "type": "line", "speaker": "サンプル", "speaker_image": "res://assets/characters/npc_sample_standing_picture.png", "text": "これを授けよう！", "actions": [ { "give_item": "material_sample" } ], "next": "end" },
+    { "id": "greet", "type": "line", "speaker": "ういちのだち", "speaker_image": "res://assets/characters/npc_sample/npc_sample_standing_picture.png", "text": "我ら！ウマ四天王！", "next": "ask" },
+    { "id": "ask", "type": "choice", "speaker": "ういち", "choices": [ { "text": "お、おう...", "next": "give" }, { "text": "とりあえずぶっ飛ばす！", "next": "end" } ] },
+    { "id": "give", "type": "line", "speaker": "ういちのだち", "speaker_image": "res://assets/characters/npc_sample/npc_sample_standing_picture.png", "text": "これを授けよう！", "actions": [ { "give_item": "material_sample" } ], "next": "end", "next_if_given": "give_already" },
+    { "id": "give_already", "type": "line", "speaker": "ういちのだち", "speaker_image": "res://assets/characters/npc_sample/npc_sample_standing_picture.png", "text": "お前はもう受け取っただろう…" , "next": "end" },
     { "id": "end", "type": "end" }
   ]
 }

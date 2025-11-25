@@ -280,6 +280,8 @@ public partial class DialogManager : Node
                     if (n.TryGetProperty("speaker", out var spEl)) nd["speaker"] = spEl.GetString();
                     if (n.TryGetProperty("text", out var tEl)) nd["text"] = tEl.GetString();
                     if (n.TryGetProperty("next", out var nxEl)) nd["next"] = nxEl.GetString();
+                    if (n.TryGetProperty("next_if_given", out var nifEl)) nd["next_if_given"] = nifEl.GetString();
+                    if (n.TryGetProperty("speaker_image", out var spimgEl)) nd["speaker_image"] = spimgEl.GetString();
                     if (n.TryGetProperty("once", out var onceEl) && onceEl.ValueKind == System.Text.Json.JsonValueKind.True) nd["once"] = true;
                     if (n.TryGetProperty("choices", out var chEl) && chEl.ValueKind == System.Text.Json.JsonValueKind.Array)
                     {
@@ -323,6 +325,40 @@ public partial class DialogManager : Node
 
             if (startId == null)
                 return false;
+
+            // If any node in this dialogue would 'give_item' and this NPC already gave that item,
+            // prefer to start at that node's 'next_if_given' to skip the greeting entirely.
+            try
+            {
+                GameState.EnsureInstance(GetTree());
+                if (GameState.Instance != null && !string.IsNullOrEmpty(npcId))
+                {
+                    foreach (var kvp in currentNodeMap)
+                    {
+                        var cand = (Godot.Collections.Dictionary)kvp.Value;
+                        if (cand.ContainsKey("actions") && cand.ContainsKey("next_if_given"))
+                        {
+                            var acts = (Godot.Collections.Array)cand["actions"];
+                            foreach (var a in acts)
+                            {
+                                var ad = (Godot.Collections.Dictionary)a;
+                                if (ad.ContainsKey("give_item"))
+                                {
+                                    var checkItem = (string)ad["give_item"];
+                                    if (GameState.Instance.HasNpcGiven(npcId, checkItem))
+                                    {
+                                        startId = (string)cand["next_if_given"];
+                                        GD.Print($"StartDialogue: NPC {npcId} already gave {checkItem}, starting at {startId}");
+                                        break;
+                                    }
+                                }
+                            }
+                            if (startId != null) break;
+                        }
+                    }
+                }
+            }
+            catch { }
 
             currentNpcId = npcId;
             currentNodeId = startId;
@@ -608,6 +644,44 @@ public partial class DialogManager : Node
         var nd = (Godot.Collections.Dictionary)currentNodeMap[currentNodeId];
         GD.Print("ShowCurrentNode: currentNodeId=", currentNodeId, " keys=", nd.Keys);
 
+        // Early check: if this node has a give_item action and this NPC already gave that item,
+        // immediately jump to the 'next_if_given' node (or skip to next) to avoid showing the give node.
+        try
+        {
+            if (nd.ContainsKey("actions") && !string.IsNullOrEmpty(currentNpcId))
+            {
+                var acts = (Godot.Collections.Array)nd["actions"];
+                foreach (var a in acts)
+                {
+                    var ad = (Godot.Collections.Dictionary)a;
+                    if (ad.ContainsKey("give_item"))
+                    {
+                        var checkItem = (string)ad["give_item"];
+                        GameState.EnsureInstance(GetTree());
+                        if (GameState.Instance != null && GameState.Instance.HasNpcGiven(currentNpcId, checkItem))
+                        {
+                            GD.Print($"ShowCurrentNode: Detected npc {currentNpcId} already gave {checkItem}, jumping");
+                            if (nd.ContainsKey("next_if_given"))
+                            {
+                                currentNodeId = (string)nd["next_if_given"];
+                            }
+                            else if (nd.ContainsKey("next"))
+                            {
+                                currentNodeId = (string)nd["next"];
+                            }
+                            else
+                            {
+                                return;
+                            }
+                            ShowCurrentNode();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        catch { }
+
         // Diagnostic: print dialogBoxInstance and its child hierarchy to see why UI nodes aren't found
         if (dialogBoxInstance == null)
         {
@@ -847,8 +921,26 @@ public partial class DialogManager : Node
                             GameState.EnsureInstance(GetTree());
                             if (GameState.Instance != null)
                             {
-                                GameState.Instance.AddItem(itemId);
-                                GD.Print($"DialogManager: give_item executed -> {itemId}");
+                                // Use NPC-specific give tracking: if this npc already gave this item, skip.
+                                if (!string.IsNullOrEmpty(currentNpcId) && GameState.Instance.HasNpcGiven(currentNpcId, itemId))
+                                {
+                                    GD.Print($"DialogManager: NPC {currentNpcId} already gave item {itemId}, skipping AddItem");
+                                    if (nd.ContainsKey("next_if_given"))
+                                    {
+                                        currentNodeId = (string)nd["next_if_given"];
+                                        GD.Print($"DialogManager: jumping to next_if_given -> {currentNodeId}");
+                                        ShowCurrentNode();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    GameState.Instance.AddItem(itemId);
+                                    // Mark that this npc has given this item so it won't be given again by the same npc
+                                    if (!string.IsNullOrEmpty(currentNpcId))
+                                        GameState.Instance.MarkNpcGiven(currentNpcId, itemId);
+                                    GD.Print($"DialogManager: give_item executed -> {itemId}");
+                                }
                             }
                         }
                         catch (Exception e)

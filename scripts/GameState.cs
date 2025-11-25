@@ -8,6 +8,8 @@ public partial class GameState : Node
 
     // inventory: item_id -> count
     private Godot.Collections.Dictionary<string, int> inventory = new Godot.Collections.Dictionary<string, int>();
+    // npcGiven: npc_id -> set of item_ids this npc has given (to prevent repeated gives per-NPC)
+    private Godot.Collections.Dictionary<string, Godot.Collections.Array> npcGiven = new Godot.Collections.Dictionary<string, Godot.Collections.Array>();
 
     // Win threshold (number of distinct or total items required). Use total count for simplicity.
     [Export]
@@ -61,6 +63,34 @@ public partial class GameState : Node
         foreach (var kv in inventory)
             sum += kv.Value;
         return sum;
+    }
+
+    // Return a shallow copy of the inventory for safe read-only use by UI
+    public Godot.Collections.Dictionary<string, int> GetInventoryCopy()
+    {
+        var copy = new Godot.Collections.Dictionary<string, int>();
+        foreach (var kv in inventory)
+            copy[(string)kv.Key] = (int)kv.Value;
+        return copy;
+    }
+
+    // NPC-specific give tracking
+    public bool HasNpcGiven(string npcId, string itemId)
+    {
+        if (string.IsNullOrEmpty(npcId) || string.IsNullOrEmpty(itemId)) return false;
+        if (!npcGiven.ContainsKey(npcId)) return false;
+        var arr = npcGiven[npcId];
+        return arr.Contains(itemId);
+    }
+
+    public void MarkNpcGiven(string npcId, string itemId)
+    {
+        if (string.IsNullOrEmpty(npcId) || string.IsNullOrEmpty(itemId)) return;
+        if (!npcGiven.ContainsKey(npcId))
+            npcGiven[npcId] = new Godot.Collections.Array();
+        var arr = npcGiven[npcId];
+        if (!arr.Contains(itemId))
+            arr.Add(itemId);
     }
 
     private void CheckVictory()

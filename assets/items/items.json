@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "material_sample",
+      "displayName": "素材サンプル",
+      "icon": "res://assets/items/material_sample.png"
+    },
+    {
+      "id": "taro_chan_material",
+      "displayName": "たろちゃんの素材",
+      "icon": "res://assets/items/taro_chan_mrterial.png"
+    }
+  ]
+}

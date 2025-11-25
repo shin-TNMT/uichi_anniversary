@@ -1,9 +1,11 @@
 {
-  "start": "greet_new",
+  "start": "greet",
+  "start_seen": "greet_seen",
   "nodes": [
-    { "id": "greet_new", "type": "line", "speaker": "たろちゃん", "text": "おやつと交換してくれる？", "next": "ask_give" },
-    { "id": "ask_give", "type": "choice", "choices": [ { "text": "交換する", "next": "give_item" }, { "text": "やめとく", "next": "end" } ] },
-    { "id": "give_item", "type": "line", "text": "素朴な素材を渡した。", "once": true, "actions": [ { "give_item": "material_taro" } ], "next": "end" },
+    { "id": "greet", "type": "line", "speaker": "たろちゃん", "speaker_image": "res://assets/characters/taro_chan/taro_chan_standing_picture.png", "text": "やあ、こんにちは！", "next": "ask" },
+    { "id": "ask", "type": "choice", "speaker": "ういち", "choices": [ { "text": "こんにちは！", "next": "give" }, { "text": "今は大丈夫", "next": "end" } ] },
+    { "id": "give", "type": "line", "speaker": "たろちゃん", "speaker_image": "res://assets/characters/taro_chan/taro_chan_standing_picture.png", "text": "これを受け取ってください。", "actions": [ { "give_item": "taro_chan_material" } ], "next": "end", "next_if_given": "give_already" },
+    { "id": "give_already", "type": "line", "speaker": "たろちゃん", "speaker_image": "res://assets/characters/taro_chan/taro_chan_standing_picture.png", "text": "すでに渡したはずだよ。", "next": "end" },
     { "id": "end", "type": "end" }
   ]
 }

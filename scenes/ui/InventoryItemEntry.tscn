@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://bdvufysrxo4go"]
+
+[node name="InventoryItemEntry" type="HBoxContainer"]
+anchors_preset = -1
+anchor_left = 0.30400002
+anchor_top = 0.17
+anchor_right = 0.30400002
+anchor_bottom = 0.17
+offset_left = 0.3199463
+offset_top = 0.3999939
+offset_right = 226.31995
+offset_bottom = 23.399994
+size_flags_horizontal = 3
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="NameLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Item Name"
+
+[node name="CountLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "x0"
+horizontal_alignment = 2
